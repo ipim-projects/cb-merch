@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 
 import Main from './pages/Main';
+import ProductCard from './pages/ProductCard';
 
 import '@xelene/tgui/dist/styles.css';
 import { AppRoot } from '@xelene/tgui';
@@ -53,6 +54,8 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Main/>}/>
+            <Route path='/product/:productCode' element={<ProductCard/>}/>
+            {/*<Route path='/cart' element={<ShoppingCart/>}/>*/}
           </Routes>
         </BrowserRouter>)}
     </AppRoot>

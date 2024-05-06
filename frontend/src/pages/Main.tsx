@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
-
 import { FixedLayout, Tabbar } from '@xelene/tgui';
 import { Icon32ProfileColoredSquare } from '@xelene/tgui/dist/icons/32/profile_colored_square';
-import { Icon20Copy } from '@xelene/tgui/dist/icons/20/copy';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
-import Catalog from '../pages/Catalog.tsx';
+
+import Catalog from '../pages/Catalog';
+import ShoppingCart from '../pages/ShoppingCart';
+import PurchaseHistory from '../pages/PurchaseHistory';
+import { IconCart } from '../icons/cart.tsx';
 
 const tabs = [
-  { id: 1, text: 'Каталог', icon: <Icon32ProfileColoredSquare/> },
-  { id: 2, text: 'Корзина', icon: <Icon20Copy/> },
-  { id: 3, text: 'История', icon: <Icon28Archive/> },
+  { id: 'catalog-tab', text: 'Каталог', icon: <Icon32ProfileColoredSquare/>, component: <Catalog/> },
+  { id: 'cart-tab', text: 'Корзина', icon: <IconCart/>, component: <ShoppingCart/> },
+  { id: 'history-tab', text: 'История', icon: <Icon28Archive/>, component: <PurchaseHistory/> },
 ]
 
-const Main: React.FunctionComponent = () => {
+const getTabComponent = (id: string) => tabs.find(tab => tab.id === id)?.component ?? <Catalog/>;
 
+const Main: React.FunctionComponent = () => {
   const [currentTab, setCurrentTab] = useState(tabs[0].id);
+
   return (
     <>
-      <Catalog/>
+      {getTabComponent(currentTab)}
       <FixedLayout style={{
         padding: 16
       }}>
@@ -26,7 +30,9 @@ const Main: React.FunctionComponent = () => {
               key={id}
               text={text}
               selected={id === currentTab}
-              onClick={() => setCurrentTab(id)}
+              onClick={() => {
+                setCurrentTab(id);
+              }}
             >
               {icon}
             </Tabbar.Item>

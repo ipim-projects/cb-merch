@@ -16,12 +16,14 @@
     "axios": "^1.5.1",
     "date-fns": "^2.30.0",
     "moment": "^2.29.4",
+    "ramda": "^0.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.1.1",
     "react-router-dom": "^6.16.0"
   },
   "devDependencies": {
+    "@types/ramda": "^0.30.0",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
     "@types/telegram-web-app": "^7.2.1",
