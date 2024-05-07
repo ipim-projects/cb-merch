@@ -1,10 +1,13 @@
 import React from 'react';
-import { Badge, Cell, Headline, Image, List, Section, Spinner } from '@xelene/tgui';
+import { Avatar, Badge, Button, Cell, Chip, Headline, Section } from '@xelene/tgui';
 
-import { useGetShoppingCartQuery } from '../redux/api.ts';
+import { useAddItemToCartMutation, useGetShoppingCartQuery, useRemoveItemFromCartMutation } from '../redux/api.ts';
+import { getColorOption, getRealColorValue } from '../helpers/product.ts';
 
 const ShoppingCart: React.FunctionComponent = () => {
   const { data: cart } = useGetShoppingCartQuery();
+  const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
+  const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
 
   return (
     <>
@@ -13,7 +16,41 @@ const ShoppingCart: React.FunctionComponent = () => {
         {cart?.items.map((item, index) => (
           <Cell
             key={index}
-            after={<Badge type="number">{item.count}</Badge>}
+            subtitle={item.product.description}
+            description={
+              <Chip
+                mode="elevated"
+                before={
+                  <Avatar
+                    size={28}
+                    style={{ backgroundColor: getRealColorValue(getColorOption(item.productVariant)?.value ?? '') }}
+                  />
+                }
+              >
+                {getColorOption(item.productVariant)?.value}
+              </Chip>
+            }
+            after={
+            <>
+              <Button
+                mode="outline"
+                size="s"
+                disabled={isAddingToCart || isRemovingFromCart}
+                onClick={async () => await removeItemFromCart(item.productVariant.code)}
+              >
+                -
+              </Button>
+              <Badge type="number" large={true}>{item.count}</Badge>
+              <Button
+                mode="outline"
+                size="s"
+                disabled={isAddingToCart || isRemovingFromCart}
+                onClick={async () => await addItemToCart(item.productVariant.code)}
+              >
+                +
+              </Button>
+            </>
+          }
           >
             {item.product.name}
           </Cell>

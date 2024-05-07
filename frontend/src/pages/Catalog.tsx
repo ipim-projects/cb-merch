@@ -61,6 +61,7 @@ const Catalog: React.FunctionComponent = () => {
         {products?.items.map((product, index) => (
           <Cell
             key={index}
+            subtitle={product.description}
             before={<Image
               fallbackIcon={<Spinner size="s"/>}
               size={48}

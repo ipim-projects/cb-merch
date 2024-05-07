@@ -1,27 +1,13 @@
-import React, { useState } from 'react';
-import { Avatar, Chip, Section } from '@xelene/tgui';
+import React from 'react';
+import { Avatar, Chip } from '@xelene/tgui';
+
 import { ProductOption } from '../types/products.ts';
+import { getRealColorValue } from '../helpers/product.ts';
 
 interface OptionsProps {
   options: ProductOption[];
   selectedColor?: string;
   onColorSelect: (code: string) => void;
-}
-
-// TODO: значение цвета не приходит с бэка, делаем костыль
-const getRealColorValue = (rusColor: string) => {
-  switch (rusColor) {
-    case 'белый':
-      return 'white';
-    case 'жёлтый':
-      return 'yellow';
-    case 'красный':
-      return 'red';
-    case 'зелёный':
-      return 'green';
-    default:
-      return 'grey';
-  }
 }
 
 const Options: React.FunctionComponent<OptionsProps> = ({ options, selectedColor, onColorSelect }) => {

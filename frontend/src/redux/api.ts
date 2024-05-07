@@ -63,9 +63,15 @@ export const api = createApi({
     getShoppingCart: builder.query<ShoppingCartDetails, void>({
       query: () => 'basket'
     }),
-    addItemToCart: builder.mutation<ProductDetails, string>({
+    addItemToCart: builder.mutation<void, string>({
       query: productVariantCode => ({
         url: `basket/add?productVariantCode=${productVariantCode}`,
+        method: 'POST',
+      })
+    }),
+    removeItemFromCart: builder.mutation<void, string>({
+      query: productVariantCode => ({
+        url: `basket/remove?productVariantCode=${productVariantCode}`,
         method: 'POST',
       })
     }),
@@ -80,4 +86,5 @@ export const {
   useGetShoppingCartInfoQuery,
   useGetShoppingCartQuery,
   useAddItemToCartMutation,
+  useRemoveItemFromCartMutation,
 } = api;
