@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
-import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
+// import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 
 import Main from './pages/Main';
 import ProductCard from './pages/ProductCard';
@@ -10,9 +9,9 @@ import '@xelene/tgui/dist/styles.css';
 import { AppRoot } from '@xelene/tgui';
 
 const App = () => {
-  const showPopup = useShowPopup();
-  const [impactOccurred, notificationOccurred, selectionChanged] = useHapticFeedback();
-  const [isInvalidVersion, setIsInvalidVersion] = useState(false);
+  // const showPopup = useShowPopup();
+  // const [impactOccurred, notificationOccurred, selectionChanged] = useHapticFeedback();
+  // const [isInvalidVersion, setIsInvalidVersion] = useState(false);
 
   useEffect(() => {
     if (window.Telegram?.WebApp?.initData) {
@@ -39,7 +38,8 @@ const App = () => {
 
   return (
     <AppRoot>
-      {isInvalidVersion &&
+      {/*{isInvalidVersion &&*/}
+      {false &&
         (<div className='invalid-version'>
             <div className='invalid-version__content'>
               <h1>Sorry but this version is outdated!
@@ -50,7 +50,8 @@ const App = () => {
             </div>
           </div>
         )}
-      {!isInvalidVersion && (
+      {/*{!isInvalidVersion && (*/}
+      {!false && (
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Main/>}/>
