@@ -6,7 +6,7 @@ import Main from './pages/Main';
 import ProductCard from './pages/ProductCard';
 
 import '@xelene/tgui/dist/styles.css';
-// import { AppRoot } from '@xelene/tgui';
+import { AppRoot } from '@xelene/tgui';
 
 const App = () => {
   const showPopup = useShowPopup();
@@ -37,7 +37,7 @@ const App = () => {
   }, [])
 
   return (
-    <>
+    <AppRoot>
       {isInvalidVersion &&
         (<div className='invalid-version'>
             <div className='invalid-version__content'>
@@ -57,7 +57,7 @@ const App = () => {
             {/*<Route path='/cart' element={<ShoppingCart/>}/>*/}
           </Routes>
         </BrowserRouter>)}
-    </>
+    </AppRoot>
   )
 };
 
