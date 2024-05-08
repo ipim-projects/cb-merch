@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 
 import Main from './pages/Main';
@@ -50,13 +50,11 @@ const App = () => {
           </div>
         )}
       {!isInvalidVersion && (
-        <BrowserRouter>
-          <Routes>
-            <Route path='/' element={<Main/>}/>
-            <Route path='/product/:productCode' element={<ProductCard/>}/>
-            {/*<Route path='/cart' element={<ShoppingCart/>}/>*/}
-          </Routes>
-        </BrowserRouter>)}
+        <Routes>
+          <Route path='/' element={<Main/>}/>
+          <Route path='/product/:productCode' element={<ProductCard/>}/>
+          {/*<Route path='/cart' element={<ShoppingCart/>}/>*/}
+        </Routes>)}
     </AppRoot>
   )
 };
