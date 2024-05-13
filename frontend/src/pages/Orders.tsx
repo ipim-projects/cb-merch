@@ -1,11 +1,11 @@
 import React from 'react';
 import { Headline, Section } from '@xelene/tgui';
 
-const PurchaseHistory: React.FunctionComponent = () => {
+const Orders: React.FunctionComponent = () => {
 
   return (
     <>
-      <Headline style={{ padding: '0 24px' }}>История покупок</Headline>
+      <Headline style={{ padding: '0 24px' }}>Мои заказы</Headline>
       <Section style={{ paddingBottom: '84px' }}>
 
       </Section>
@@ -13,4 +13,4 @@ const PurchaseHistory: React.FunctionComponent = () => {
   )
 }
 
-export default PurchaseHistory;
+export default Orders;

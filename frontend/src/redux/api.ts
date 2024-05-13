@@ -32,6 +32,7 @@ const baseQuery = fetchBaseQuery({
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
+  tagTypes: ['Basket'],
   endpoints: (builder) => ({
     // Products
     listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg>({
@@ -54,26 +55,29 @@ export const api = createApi({
       }),
     }),
     getProduct: builder.query<ProductDetails, string>({
-      query: code => `product/${code}`
+      query: code => `product/${code}`,
     }),
     // Shopping cart
     getShoppingCartInfo: builder.query<ShoppingCartInfo, void>({
-      query: () => 'basket/info'
+      query: () => 'basket/info',
     }),
     getShoppingCart: builder.query<ShoppingCartDetails, void>({
-      query: () => 'basket'
+      query: () => 'basket',
+      providesTags: [{ type: 'Basket', id: 'LIST' }],
     }),
     addItemToCart: builder.mutation<void, string>({
       query: productVariantCode => ({
         url: `basket/add?productVariantCode=${productVariantCode}`,
         method: 'POST',
-      })
+      }),
+      invalidatesTags: [{ type: 'Basket', id: 'LIST' }],
     }),
     removeItemFromCart: builder.mutation<void, string>({
       query: productVariantCode => ({
         url: `basket/remove?productVariantCode=${productVariantCode}`,
         method: 'POST',
-      })
+      }),
+      invalidatesTags: [{ type: 'Basket', id: 'LIST' }],
     }),
   }),
 });

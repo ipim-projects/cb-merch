@@ -5,13 +5,13 @@ import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 
 import Catalog from '../pages/Catalog';
 import ShoppingCart from '../pages/ShoppingCart';
-import PurchaseHistory from '../pages/PurchaseHistory';
+import Orders from '../pages/Orders.tsx';
 import { IconCart } from '../icons/cart.tsx';
 
 const tabs = [
   { id: 'catalog-tab', text: 'Каталог', icon: <Icon32ProfileColoredSquare/>, component: <Catalog/> },
   { id: 'cart-tab', text: 'Корзина', icon: <IconCart/>, component: <ShoppingCart/> },
-  { id: 'history-tab', text: 'История', icon: <Icon28Archive/>, component: <PurchaseHistory/> },
+  { id: 'orders-tab', text: 'Заказы', icon: <Icon28Archive/>, component: <Orders/> },
 ]
 
 const getTabComponent = (id: string) => tabs.find(tab => tab.id === id)?.component ?? <Catalog/>;
