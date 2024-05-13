@@ -8,5 +8,4 @@ export interface ListResponse<T> {
 export interface ListRequestQueryArg {
   pageIndex?: number,
   pageSize?: number,
-  name?: string,
 }

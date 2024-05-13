@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ListRequestQueryArg, ListResponse } from '../types/common.ts';
 import { Product, ProductDetails } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
+import { BuyerInfo, Order, OrderBaseInfo } from '../types/orders.ts';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: 'https://test.store4merch.ru/api/v1/',
@@ -35,7 +36,7 @@ export const api = createApi({
   tagTypes: ['Basket'],
   endpoints: (builder) => ({
     // Products
-    listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg>({
+    listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg & Partial<Pick<Product, 'name'>>>({
       query: ({
                 pageIndex = 1,
                 pageSize = 30,
@@ -79,6 +80,18 @@ export const api = createApi({
       }),
       invalidatesTags: [{ type: 'Basket', id: 'LIST' }],
     }),
+    // Orders
+    listOrders: builder.query<ListResponse<OrderBaseInfo>, ListRequestQueryArg>({
+      query: ({ pageIndex = 1, pageSize = 30 }) =>
+        `order/list?pageIndex=${pageIndex}&pageSize=${pageSize}`,
+    }),
+    createOrder: builder.mutation<Order, BuyerInfo>({
+      query: buyerInfo => ({
+        url: 'order',
+        method: 'POST',
+        body: buyerInfo,
+      }),
+    }),
   }),
 });
 
@@ -91,4 +104,6 @@ export const {
   useGetShoppingCartQuery,
   useAddItemToCartMutation,
   useRemoveItemFromCartMutation,
+  useListOrdersQuery,
+  useCreateOrderMutation,
 } = api;

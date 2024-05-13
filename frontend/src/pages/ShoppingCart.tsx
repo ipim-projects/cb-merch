@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Badge, Button, Cell, Chip, Headline, Info, List, Section } from '@xelene/tgui';
+import { Avatar, Badge, Button, Cell, Chip, Headline, Info, List, Section, Snackbar } from '@xelene/tgui';
 import { isEmpty } from 'ramda';
+import { MainButton } from '@vkruglikov/react-telegram-web-app';
+import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 
-import { useAddItemToCartMutation, useGetShoppingCartQuery, useRemoveItemFromCartMutation } from '../redux/api.ts';
+import {
+  useAddItemToCartMutation,
+  useGetShoppingCartQuery,
+  useRemoveItemFromCartMutation,
+  useCreateOrderMutation
+} from '../redux/api.ts';
 import { getColorOption, getRealColorValue } from '../helpers/product.ts';
 import Loading from '../components/Loading.tsx';
-import { MainButton } from '@vkruglikov/react-telegram-web-app';
 
 const ShoppingCart: React.FunctionComponent = () => {
+  const [isSnackbarShown, setIsSnackbarShown] = useState(false);
   const { data: cart, isLoading } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
   const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
+  const [createOrder, { isLoading: isOrderCreating }] = useCreateOrderMutation();
 
   const navigate = useNavigate();
 
@@ -19,10 +27,17 @@ const ShoppingCart: React.FunctionComponent = () => {
   const placeOrderButtonDisabled = isLoading
     || isAddingToCart
     || isRemovingFromCart
+    || isOrderCreating
     || (cart?.items && isEmpty(cart?.items));
 
   const handlePlaceOrder = async () => {
-    // await addItemToCart(selectedVariant.code);
+    setIsSnackbarShown(true);
+    await createOrder({
+      buyerName: 'Buyer Name',
+      buyerPhone: 'Phone Number',
+      buyerEmail: 'Email Address',
+      comment: 'Комментарий к заказу',
+    });
   }
 
   if (isLoading) return (
@@ -32,6 +47,19 @@ const ShoppingCart: React.FunctionComponent = () => {
   return (
     <>
       <Headline style={{ padding: '0 24px' }}>Корзина</Headline>
+      {isSnackbarShown && (
+        <Snackbar
+          before={<Icon28Archive/>}
+          description="№ такой-то от такой-то даты"
+          children="Заказ сформирован"
+          onClose={() => setIsSnackbarShown(false)}
+          after={(
+            <Snackbar.Button /*onClick={() => navigate(`/product/${item.product.code}`)}*/>
+              К заказу
+            </Snackbar.Button>
+          )}
+        />
+      )}
       <List style={{ paddingBottom: '84px' }}>
         <Section>
           {cart?.items.map((item, index) => (
