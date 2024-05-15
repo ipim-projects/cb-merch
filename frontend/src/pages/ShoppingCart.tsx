@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Badge, Button, Cell, Chip, Headline, Info, List, Section, Snackbar } from '@xelene/tgui';
+import { Avatar, Badge, Button, Cell, Chip, Headline, IconButton, Info, List, Section, Snackbar } from '@xelene/tgui';
 import { isEmpty } from 'ramda';
 import { MainButton } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
@@ -8,19 +8,20 @@ import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import {
   useAddItemToCartMutation,
   useGetShoppingCartQuery,
-  // useRemoveItemFromCartMutation,
+  useRemoveItemFromCartMutation,
   useCreateOrderMutation,
   useDecreaseOneItemMutation
 } from '../redux/api.ts';
 import { getColorOption } from '../helpers/product.ts';
 import Loading from '../components/Loading.tsx';
+import { IconTrashBin } from '../icons/trash-bin.tsx';
 
 const ShoppingCart: React.FunctionComponent = () => {
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
   const { data: cart, isLoading } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
   const [decreaseOneItem, { isLoading: isDecreasing }] = useDecreaseOneItemMutation();
-  // const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
+  const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
   const [createOrder, { isLoading: isOrderCreating }] = useCreateOrderMutation();
 
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const buttonsDisabled = isLoading
     || isAddingToCart
     || isDecreasing
-    // || isRemovingFromCart
+    || isRemovingFromCart
     || isOrderCreating
     || (cart?.items && isEmpty(cart?.items));
 
@@ -108,6 +109,18 @@ const ShoppingCart: React.FunctionComponent = () => {
                   >
                     +
                   </Button>
+                  <IconButton
+                    style={{ marginLeft: '16px' }}
+                    mode="outline"
+                    size="s"
+                    disabled={buttonsDisabled}
+                    onClick={async (event) => {
+                      event.stopPropagation();
+                      await removeItemFromCart(item.productVariant.code);
+                    }}
+                  >
+                    <IconTrashBin/>
+                  </IconButton>
                 </>
               }
             >

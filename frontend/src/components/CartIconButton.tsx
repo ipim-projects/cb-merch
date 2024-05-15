@@ -12,7 +12,7 @@ const CartIconButton: React.FunctionComponent = () => {
   const { data: cartInfo, isLoading } = useGetShoppingCartInfoQuery();
 
   return (
-    <CardChip>
+    <CardChip readOnly>
       <IconButtonRef disabled={isLoading} ref={ref} mode="plain" size="m" onClick={() => setTooltipShown(!tooltipShown)}>
         <IconCart/>
       </IconButtonRef>

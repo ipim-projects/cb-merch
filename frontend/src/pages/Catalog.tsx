@@ -11,7 +11,7 @@ const Catalog: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
 
-  const { data: products, isLoading } = useListProductsQuery({});
+  const { data: products, isLoading } = useListProductsQuery({name: search});
 
   if (isLoading) return (
     <Loading/>

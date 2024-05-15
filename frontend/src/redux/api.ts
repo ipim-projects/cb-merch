@@ -40,8 +40,8 @@ export const api = createApi({
       query: ({
                 pageIndex = 1,
                 pageSize = 30,
-                name
-              }) => `product/list?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? '&name=' + name : ''}`,
+                name= ''
+              }) => `product/list?pageIndex=${pageIndex}&pageSize=${pageSize}&name=${name}`,
     }),
     getProductImage: builder.query<string, string>({
       query: fileCode => ({
