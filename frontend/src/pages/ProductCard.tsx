@@ -1,50 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, List, Placeholder, Section } from '@xelene/tgui';
+import { Button, List, Placeholder, Section, Snackbar } from '@xelene/tgui';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
+import { isEmpty } from 'ramda';
 
 import { useGetProductQuery, useGetProductImageQuery, useAddItemToCartMutation } from '../redux/api.ts';
 import Options from '../components/Options.tsx';
 import CartIconButton from '../components/CartIconButton.tsx';
 import Loading from '../components/Loading.tsx';
-import { getVariant } from '../helpers/product.ts';
 import { ProductVariant } from '../types/products.ts';
 
 const ProductCard: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const { productCode } = useParams();
-  // TODO: пока только цвет
-  const [selectedColor, setSelectedColor] = useState<string>();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>();
+  const [isSnackbarShown, setIsSnackbarShown] = useState(false);
 
-  const { data: product, isLoading } = useGetProductQuery(productCode!);
-  // const { data: image } = useGetProductImageQuery(product?.mainFile.code!, { skip: !product });
-  const { data: image } = useGetProductImageQuery(product?.files[0]?.code!, { skip: !product });
+  const { data: product, isLoading, isSuccess } = useGetProductQuery(productCode!);
+  const { data: image } = useGetProductImageQuery(
+    product?.files.find(file => file.isMain)?.code!,
+    { skip: !product || !product.files || isEmpty(product.files) }
+  );
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
 
-  useEffect(() => {
-    if (selectedColor) setSelectedVariant(getVariant(product?.variants ?? [], [selectedColor]));
-  }, [selectedColor]);
-
   const handleAddToCart = async () => {
-    if (!selectedColor) {
-      window.Telegram.WebApp.showPopup({
-        title: 'Ошибка',
-        message: 'Не выбран цвет',
-      });
-      return;
-    }
-
     if (selectedVariant) await addItemToCart(selectedVariant.code);
+    setIsSnackbarShown(true);
   }
+
+  useEffect(() => {
+    // в случае единственного варианта товара
+    if (isSuccess && isEmpty(product.options) && product.variants.length === 1) setSelectedVariant(product.variants[0]);
+  }, [isSuccess]);
 
   if (isLoading || !product) return (
     <Loading/>
   );
-
-  console.log('selectedColor', selectedColor);
 
   const addButtonText = isAddingToCart
     ? 'Добавляется...'
@@ -52,6 +45,18 @@ const ProductCard: React.FunctionComponent = () => {
 
   return (
     <>
+      {isSnackbarShown && (
+        <Snackbar
+          description={`${product.name}`}
+          children="Товар добавлен в корзину"
+          onClose={() => setIsSnackbarShown(false)}
+          after={(
+            <Snackbar.Button /*onClick={() => navigate(`/product/${item.product.code}`)}*/>
+              В корзину
+            </Snackbar.Button>
+          )}
+        />
+      )}
       {isTelegram && <BackButton onClick={() => navigate(-1)}/>}
       <List>
         <Section>
@@ -60,32 +65,30 @@ const ProductCard: React.FunctionComponent = () => {
             header={product.name}
             description={product.description}
           >
-            <img
+            {image && <img
               alt="Product image"
               src={image}
               style={{
                 width: 500
               }}
-            />
+            />}
           </Placeholder>
         </Section>
-        <Section header="Опции">
-          <Options
-            options={product.options}
-            selectedColor={selectedColor}
-            onColorSelect={setSelectedColor}
-          />
-          {isTelegram ?
-            <MainButton
-              text={addButtonText}
-              disabled={isAddingToCart}
-              onClick={handleAddToCart}
-            /> :
-            <Button disabled={isAddingToCart} onClick={handleAddToCart}>
-              {addButtonText}
-            </Button>
-          }
-        </Section>
+        {!isEmpty(product.options) && product.variants.length > 1 && <Options
+          options={product.options}
+          variants={product.variants}
+          onOptionSelect={setSelectedVariant}
+        />}
+        {isTelegram ?
+          <MainButton
+            text={addButtonText}
+            disabled={isAddingToCart || !selectedVariant}
+            onClick={handleAddToCart}
+          /> :
+          <Button disabled={isAddingToCart || !selectedVariant} onClick={handleAddToCart}>
+            {addButtonText}
+          </Button>
+        }
       </List>
     </>
   )

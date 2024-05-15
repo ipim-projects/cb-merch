@@ -8,36 +8,39 @@ import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import {
   useAddItemToCartMutation,
   useGetShoppingCartQuery,
-  useRemoveItemFromCartMutation,
-  useCreateOrderMutation
+  // useRemoveItemFromCartMutation,
+  useCreateOrderMutation,
+  useDecreaseOneItemMutation
 } from '../redux/api.ts';
-import { getColorOption, getRealColorValue } from '../helpers/product.ts';
+import { getColorOption } from '../helpers/product.ts';
 import Loading from '../components/Loading.tsx';
 
 const ShoppingCart: React.FunctionComponent = () => {
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
   const { data: cart, isLoading } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
-  const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
+  const [decreaseOneItem, { isLoading: isDecreasing }] = useDecreaseOneItemMutation();
+  // const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
   const [createOrder, { isLoading: isOrderCreating }] = useCreateOrderMutation();
 
   const navigate = useNavigate();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
-  const placeOrderButtonDisabled = isLoading
+  const buttonsDisabled = isLoading
     || isAddingToCart
-    || isRemovingFromCart
+    || isDecreasing
+    // || isRemovingFromCart
     || isOrderCreating
     || (cart?.items && isEmpty(cart?.items));
 
   const handlePlaceOrder = async () => {
-    setIsSnackbarShown(true);
     await createOrder({
       buyerName: 'Buyer Name',
       buyerPhone: 'Phone Number',
       buyerEmail: 'Email Address',
       comment: 'Комментарий к заказу',
     });
+    setIsSnackbarShown(true);
   }
 
   if (isLoading) return (
@@ -72,7 +75,7 @@ const ShoppingCart: React.FunctionComponent = () => {
                   before={
                     <Avatar
                       size={28}
-                      style={{ backgroundColor: getRealColorValue(getColorOption(item.productVariant)?.value ?? '') }}
+                      style={{ backgroundColor: getColorOption(item.productVariant)?.value ?? '' }}
                     />
                   }
                 >
@@ -85,10 +88,10 @@ const ShoppingCart: React.FunctionComponent = () => {
                   <Button
                     mode="outline"
                     size="s"
-                    disabled={isAddingToCart || isRemovingFromCart}
+                    disabled={buttonsDisabled}
                     onClick={async (event) => {
                       event.stopPropagation();
-                      await removeItemFromCart(item.productVariant.code);
+                      await decreaseOneItem(item.productVariant.code);
                     }}
                   >
                     -
@@ -97,7 +100,7 @@ const ShoppingCart: React.FunctionComponent = () => {
                   <Button
                     mode="outline"
                     size="s"
-                    disabled={isAddingToCart || isRemovingFromCart}
+                    disabled={buttonsDisabled}
                     onClick={async (event) => {
                       event.stopPropagation();
                       await addItemToCart(item.productVariant.code);
@@ -119,10 +122,10 @@ const ShoppingCart: React.FunctionComponent = () => {
           {isTelegram ?
             <MainButton
               text={'Оформить заказ'}
-              disabled={placeOrderButtonDisabled}
+              disabled={buttonsDisabled}
               onClick={handlePlaceOrder}
             /> :
-            <Button disabled={placeOrderButtonDisabled} onClick={handlePlaceOrder}>
+            <Button disabled={buttonsDisabled} onClick={handlePlaceOrder}>
               Оформить заказ
             </Button>
           }

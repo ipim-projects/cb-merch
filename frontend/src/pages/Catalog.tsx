@@ -1,41 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cell, Headline, Image, Info, Input, Section, Spinner, Tappable } from '@xelene/tgui';
+import { Cell, Headline, Image, Info, Input, Section, Tappable } from '@xelene/tgui';
 import { Icon24Close } from '@xelene/tgui/dist/icons/24/close';
 
-import { useListProductsQuery, useLazyGetProductImageQuery } from '../redux/api.ts';
+import { useListProductsQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 
 const Catalog: React.FunctionComponent = () => {
   const [search, setSearch] = useState('');
-  const [images, setImages] = useState<{ [key: string]: string | undefined }>({});
 
   const navigate = useNavigate();
 
-  const { data: products, isLoading, isSuccess } = useListProductsQuery({});
-  const [imageQueryTrigger] = useLazyGetProductImageQuery();
-
-  useEffect(() => {
-    const fetchProductImages = async (codes: string[]) => {
-      for (const fileCode of codes) {
-        const { data: image } = await imageQueryTrigger(fileCode, true);
-        setImages((prev) => {
-          const result = { ...prev };
-          result[`${fileCode}`] = image;
-          return result;
-        });
-      }
-    }
-
-    if (!isSuccess) return;
-    console.log('products', products);
-    const fileCodes = products?.items
-      .filter(product => product.mainFile)
-      .map(product => product.mainFile.code);
-    console.log('fileCodes', fileCodes);
-
-    fetchProductImages(fileCodes);
-  }, [isSuccess]);
+  const { data: products, isLoading } = useListProductsQuery({});
 
   if (isLoading) return (
     <Loading/>
@@ -49,7 +25,7 @@ const Catalog: React.FunctionComponent = () => {
           header='Поиск'
           placeholder='Найти в каталоге'
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={event => setSearch(event.target.value)}
           after={
             <Tappable
               Component='div'
@@ -62,16 +38,10 @@ const Catalog: React.FunctionComponent = () => {
           <Cell
             key={index}
             subtitle={product.description}
-            before={<Image
-              fallbackIcon={<Spinner size="s"/>}
+            before={product.smallFile?.content ? <Image
               size={48}
-              src={
-                product.mainFile?.code && images[product.mainFile.code]
-                  ? images[product.mainFile.code]
-                  // : 'https://avatars.githubusercontent.com/u/84640980?v=4'
-                  : ''
-              }
-            />}
+              src={'data:image/jpeg;base64,' + product.smallFile.content}
+            /> : null}
             after={<Info type="text">от {product.price} ₽</Info>}
             onClick={() => navigate(`/product/${product.code}`)}
           >

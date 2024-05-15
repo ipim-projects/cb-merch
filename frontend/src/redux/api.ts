@@ -61,6 +61,7 @@ export const api = createApi({
     // Shopping cart
     getShoppingCartInfo: builder.query<ShoppingCartInfo, void>({
       query: () => 'basket/info',
+      providesTags: [{ type: 'Basket', id: 'LIST' }],
     }),
     getShoppingCart: builder.query<ShoppingCartDetails, void>({
       query: () => 'basket',
@@ -69,6 +70,13 @@ export const api = createApi({
     addItemToCart: builder.mutation<void, string>({
       query: productVariantCode => ({
         url: `basket/add?productVariantCode=${productVariantCode}`,
+        method: 'POST',
+      }),
+      invalidatesTags: [{ type: 'Basket', id: 'LIST' }],
+    }),
+    decreaseOneItem: builder.mutation<void, string>({
+      query: productVariantCode => ({
+        url: `basket/decrease?productVariantCode=${productVariantCode}`,
         method: 'POST',
       }),
       invalidatesTags: [{ type: 'Basket', id: 'LIST' }],
@@ -97,12 +105,13 @@ export const api = createApi({
 
 export const {
   useListProductsQuery,
-  useLazyGetProductImageQuery,
+  // useLazyGetProductImageQuery,
   useGetProductImageQuery,
   useGetProductQuery,
   useGetShoppingCartInfoQuery,
   useGetShoppingCartQuery,
   useAddItemToCartMutation,
+  useDecreaseOneItemMutation,
   useRemoveItemFromCartMutation,
   useListOrdersQuery,
   useCreateOrderMutation,
