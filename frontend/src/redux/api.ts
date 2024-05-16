@@ -4,6 +4,7 @@ import { ListRequestQueryArg, ListResponse } from '../types/common.ts';
 import { Product, ProductDetails } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
 import { BuyerInfo, Order, OrderBaseInfo } from '../types/orders.ts';
+import { CheckDeliveryAddressQueryArg, DeliveryAddress, DeliveryPrice } from '../types/delivery.ts';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: 'https://test.store4merch.ru/api/v1/',
@@ -40,7 +41,7 @@ export const api = createApi({
       query: ({
                 pageIndex = 1,
                 pageSize = 30,
-                name= ''
+                name = ''
               }) => `product/list?pageIndex=${pageIndex}&pageSize=${pageSize}&name=${name}`,
     }),
     getProductImage: builder.query<string, string>({
@@ -88,6 +89,24 @@ export const api = createApi({
       }),
       invalidatesTags: [{ type: 'Basket', id: 'LIST' }],
     }),
+    // Delivery
+    checkAddress: builder.query<DeliveryAddress, CheckDeliveryAddressQueryArg>({
+      query: ({ deliveryType, address }) =>
+        `delivery/pochtaru/check/address?deliveryType=${deliveryType}&address=${address}`,
+    }),
+    saveAddress: builder.query<Omit<DeliveryAddress, 'code'>, Omit<DeliveryAddress, 'code'>>({
+      query: address => ({
+        url: 'delivery/address/save',
+        method: 'POST',
+        body: address
+      }),
+    }),
+    getDeliveryPrice: builder.query<DeliveryPrice, string>({
+      query: addressCode => ({
+        url: `delivery/price?addressCode=${addressCode}`,
+        method: 'POST',
+      }),
+    }),
     // Orders
     listOrders: builder.query<ListResponse<OrderBaseInfo>, ListRequestQueryArg>({
       query: ({ pageIndex = 1, pageSize = 30 }) =>
@@ -113,6 +132,9 @@ export const {
   useAddItemToCartMutation,
   useDecreaseOneItemMutation,
   useRemoveItemFromCartMutation,
+  useLazyCheckAddressQuery,
+  useLazyGetDeliveryPriceQuery,
+  useLazySaveAddressQuery,
   useListOrdersQuery,
   useCreateOrderMutation,
 } = api;

@@ -1,25 +1,6 @@
 import { User } from './user.ts';
 import { Product } from './products.ts';
-
-enum DeliveryType {
-  POST_PVZ = 'postPvz',
-  POST_COURIER = 'postCourier',
-  BOXBERRY_PVZ = 'boxberryPvz',
-  BOXBERRY_COURIER = 'boxberryCourier',
-}
-
-export interface DeliveryAddress {
-  country: string,
-  region?: string,
-  area?: string,
-  city: string,
-  address: string,
-  zipCode: string,
-  pvzCode?: string,
-  pvzName?: string,
-  deliveryType: DeliveryType,
-  code: string,
-}
+import { DeliveryAddress } from './delivery.ts';
 
 export interface OrderBaseInfo {
   code: string,
