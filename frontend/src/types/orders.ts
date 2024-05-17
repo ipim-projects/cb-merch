@@ -34,5 +34,5 @@ export interface BuyerInfo {
   buyerName: string,
   buyerPhone: string,
   buyerEmail: string,
-  comment: string,
+  comment?: string,
 }

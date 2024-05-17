@@ -13,7 +13,7 @@ import {
   Multiselect,
   Section,
   Snackbar,
-  Tappable
+  Tappable, Textarea
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
 import { difference, equals, isEmpty } from 'ramda';
@@ -38,6 +38,7 @@ import showBoxberryMap from '../helpers/boxberry.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
 import { DeliveryType } from '../types/delivery.ts';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
+import { BuyerInfo } from "../types/orders.ts";
 
 export const DELIVERY_OPTIONS: MultiselectOption[] = [
   { value: DeliveryType.BOXBERRY_PVZ, label: 'Boxberry: Пункт выдачи' },
@@ -54,6 +55,11 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [address, setAddress] = useState('');
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [deliveryPriceFoundOut, setDeliveryPriceFoundOut] = useState(false);
+  const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
+    buyerName: '',
+    buyerPhone: '',
+    buyerEmail: '',
+  });
 
   const { data: cart, isLoading } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
@@ -85,12 +91,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   }, [deliveryType]);
 
   const handlePlaceOrder = async () => {
-    await createOrder({
-      buyerName: 'Buyer Name',
-      buyerPhone: 'Phone Number',
-      buyerEmail: 'Email Address',
-      comment: 'Комментарий к заказу',
-    });
+    await createOrder(buyerInfo);
     setIsSnackbarShown(true);
   }
 
@@ -122,6 +123,8 @@ const ShoppingCart: React.FunctionComponent = () => {
   if (isLoading) return (
     <Loading/>
   );
+
+  console.log('buyerInfo', buyerInfo);
 
   return (
     <>
@@ -246,6 +249,46 @@ const ShoppingCart: React.FunctionComponent = () => {
           </Info>
         </Section>
         {deliveryPriceFoundOut && <Section header="Оформление заказа">
+          <Input
+            header='Имя, фамилия'
+            placeholder='Введите имя и фамилию'
+            value={buyerInfo?.buyerName}
+            onChange={event =>
+              setBuyerInfo(prevState => ({
+                ...prevState, buyerName: event.target.value
+              }))
+            }
+          />
+          <Input
+            header='Телефон'
+            placeholder='Введите номер телефона'
+            value={buyerInfo?.buyerPhone}
+            onChange={event =>
+              setBuyerInfo(prevState => ({
+                ...prevState, buyerPhone: event.target.value
+              }))
+            }
+          />
+          <Input
+            header='Email'
+            placeholder='Введите адрес электронной почты'
+            value={buyerInfo?.buyerEmail}
+            onChange={event =>
+              setBuyerInfo(prevState => ({
+                ...prevState, buyerEmail: event.target.value
+              }))
+            }
+          />
+          <Textarea
+            header='Комментарий'
+            placeholder='Введите комментарий к заказу'
+            value={buyerInfo?.comment}
+            onChange={event =>
+              setBuyerInfo(prevState => ({
+                ...prevState, comment: event.target.value
+              }))
+            }
+          />
           {isTelegram ?
             <MainButton
               text={'Оформить заказ'}
