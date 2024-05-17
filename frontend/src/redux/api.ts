@@ -94,7 +94,7 @@ export const api = createApi({
       query: ({ deliveryType, address }) =>
         `delivery/pochtaru/check/address?deliveryType=${deliveryType}&address=${address}`,
     }),
-    saveAddress: builder.query<Omit<DeliveryAddress, 'code'>, Omit<DeliveryAddress, 'code'>>({
+    saveAddress: builder.query<DeliveryAddress, Omit<DeliveryAddress, 'code'>>({
       query: address => ({
         url: 'delivery/address/save',
         method: 'POST',

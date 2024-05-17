@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Avatar,
@@ -12,7 +12,8 @@ import {
   List,
   Multiselect,
   Section,
-  Snackbar, Tappable
+  Snackbar,
+  Tappable
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
 import { difference, equals, isEmpty } from 'ramda';
@@ -32,8 +33,11 @@ import {
 } from '../redux/api.ts';
 import { getColorOption } from '../helpers/product.ts';
 import Loading from '../components/Loading.tsx';
+// @ts-ignore
+import showBoxberryMap from '../helpers/boxberry.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
-import { DeliveryPrice, DeliveryType } from '../types/delivery.ts';
+import { DeliveryType } from '../types/delivery.ts';
+import { deliveryAddressToString } from '../helpers/delivery.ts';
 
 export const DELIVERY_OPTIONS: MultiselectOption[] = [
   { value: DeliveryType.BOXBERRY_PVZ, label: 'Boxberry: Пункт выдачи' },
@@ -48,7 +52,8 @@ const ShoppingCart: React.FunctionComponent = () => {
     DELIVERY_OPTIONS.filter(opt => opt.value === DeliveryType.BOXBERRY_COURIER)
   );
   const [address, setAddress] = useState('');
-  const [deliveryPrice, setDeliveryPrice] = useState<DeliveryPrice>();
+  const [deliveryPrice, setDeliveryPrice] = useState(0);
+  const [deliveryPriceFoundOut, setDeliveryPriceFoundOut] = useState(false);
 
   const { data: cart, isLoading } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
@@ -70,6 +75,15 @@ const ShoppingCart: React.FunctionComponent = () => {
     || isOrderCreating
     || (cart?.items && isEmpty(cart?.items));
 
+  useEffect(() => {
+    setDeliveryPrice(0);
+    setDeliveryPriceFoundOut(false);
+    if (deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value) {
+      console.log('showBoxberryMap');
+      showBoxberryMap(boxberryCallback);
+    }
+  }, [deliveryType]);
+
   const handlePlaceOrder = async () => {
     await createOrder({
       buyerName: 'Buyer Name',
@@ -86,14 +100,23 @@ const ShoppingCart: React.FunctionComponent = () => {
       deliveryType: deliveryType[0].value as DeliveryType,
       address
     });
-    console.log('checkedAddress', checkedAddress);
     if (!checkedAddress) return;
     const { data: savedAddress } = await saveAddressQueryTrigger(checkedAddress);
-    console.log('savedAddress', savedAddress);
-    // TODO: костыль
-    const { data: resultDeliveryPrice } = await getDeliveryPriceQueryTrigger(checkedAddress.code + '123');
-    setDeliveryPrice(resultDeliveryPrice);
+    if (!savedAddress) return;
+    const { data: resultDeliveryPrice } = await getDeliveryPriceQueryTrigger(savedAddress.code);
+    if (!resultDeliveryPrice) return;
+    setDeliveryPrice(resultDeliveryPrice.price);
+    setDeliveryPriceFoundOut(true);
+    setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
     console.log('resultDeliveryPrice', resultDeliveryPrice);
+  }
+
+  const boxberryCallback = (result: any) => {
+    console.log('Выбрано отделение:', result);
+    if (result.price) {
+      setDeliveryPrice(result.price);
+      setDeliveryPriceFoundOut(true);
+    }
   }
 
   if (isLoading) return (
@@ -209,15 +232,20 @@ const ShoppingCart: React.FunctionComponent = () => {
                 </Tappable>
               }/>
           }
-          {deliveryPrice && <Info type="text">
-            Стоимость доставки: {deliveryPrice.price} ₽
-          </Info>
+          {deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value && <div
+            id="boxberry_map"
+          ></div>
           }
         </Section>
         <Section>
           <Info type="text">
-            Итого: {cart?.totalPrice} ₽
+            Стоимость доставки: {deliveryPrice} ₽
           </Info>
+          <Info type="text">
+            Итого: {(cart?.totalPrice ?? 0) + deliveryPrice} ₽
+          </Info>
+        </Section>
+        {deliveryPriceFoundOut && <Section header="Оформление заказа">
           {isTelegram ?
             <MainButton
               text={'Оформить заказ'}
@@ -229,6 +257,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             </Button>
           }
         </Section>
+        }
       </List>
     </>
   )
