@@ -35,6 +35,8 @@ import { getColorOption } from '../helpers/product.ts';
 import Loading from '../components/Loading.tsx';
 // @ts-ignore
 import showBoxberryMap from '../helpers/boxberry.js';
+// @ts-ignore
+import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
 import { DeliveryType } from '../types/delivery.ts';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
@@ -88,6 +90,10 @@ const ShoppingCart: React.FunctionComponent = () => {
       console.log('showBoxberryMap');
       showBoxberryMap(boxberryCallback);
     }
+    if (deliveryType.length > 0 && DeliveryType.POST_PVZ === deliveryType[0].value) {
+      console.log('showPochtaMap');
+      showPochtaMap(pochtaCallback);
+    }
   }, [deliveryType]);
 
   const handlePlaceOrder = async () => {
@@ -116,6 +122,14 @@ const ShoppingCart: React.FunctionComponent = () => {
     console.log('Выбрано отделение:', result);
     if (result.price) {
       setDeliveryPrice(result.price);
+      setDeliveryPriceFoundOut(true);
+    }
+  }
+
+  const pochtaCallback = (result: any) => {
+    console.log('Выбрано отделение:', result);
+    if (result.cashOfDelivery ) {
+      setDeliveryPrice(result.cashOfDelivery );
       setDeliveryPriceFoundOut(true);
     }
   }
@@ -237,6 +251,11 @@ const ShoppingCart: React.FunctionComponent = () => {
           }
           {deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value && <div
             id="boxberry_map"
+          ></div>
+          }
+          {deliveryType.length > 0 && DeliveryType.POST_PVZ === deliveryType[0].value && <div
+            id="ecom-widget"
+            style={{ height: 500 }}
           ></div>
           }
         </Section>
