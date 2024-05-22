@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { FixedLayout, Tabbar } from '@xelene/tgui';
 import { Icon32ProfileColoredSquare } from '@xelene/tgui/dist/icons/32/profile_colored_square';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 
-import Catalog from '../pages/Catalog';
-import ShoppingCart from '../pages/ShoppingCart';
-import Orders from '../pages/Orders.tsx';
 import { IconCart } from '../icons/cart.tsx';
 
-const tabs = [
-  { id: 'catalog-tab', text: 'Каталог', icon: <Icon32ProfileColoredSquare/>, component: <Catalog/> },
-  { id: 'cart-tab', text: 'Корзина', icon: <IconCart/>, component: <ShoppingCart/> },
-  { id: 'orders-tab', text: 'Заказы', icon: <Icon28Archive/>, component: <Orders/> },
-]
+interface Tab {
+  id: string;
+  path: string,
+  text: string;
+  icon: React.JSX.Element;
+}
 
-const getTabComponent = (id: string) => tabs.find(tab => tab.id === id)?.component ?? <Catalog/>;
+const tabs: Tab[] = [
+  { id: 'catalog-tab', path: '/catalog', text: 'Каталог', icon: <Icon32ProfileColoredSquare/> },
+  { id: 'cart-tab', path: '/cart', text: 'Корзина', icon: <IconCart/> },
+  { id: 'orders-tab', path: '/orders', text: 'Заказы', icon: <Icon28Archive/> },
+];
 
 const Main: React.FunctionComponent = () => {
-  const [currentTab, setCurrentTab] = useState(tabs[0].id);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <>
-      {getTabComponent(currentTab)}
-      <FixedLayout style={{
-        padding: 16
-      }}>
+      <Outlet/>
+      <FixedLayout style={{ padding: 16 }}>
         <Tabbar>
-          {tabs.map(({ id, text, icon }) => <Tabbar.Item
+          {tabs.map(({ id, path, text, icon }) => <Tabbar.Item
               key={id}
               text={text}
-              selected={id === currentTab}
-              onClick={() => {
-                setCurrentTab(id);
-              }}
+              selected={path === location.pathname}
+              onClick={() => navigate(path)}
             >
               {icon}
             </Tabbar.Item>

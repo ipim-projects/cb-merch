@@ -1,12 +1,24 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 
 import Main from './pages/Main';
 import ProductCard from './pages/ProductCard';
+import Catalog from './pages/Catalog.tsx';
+import ShoppingCart from './pages/ShoppingCart.tsx';
+import Orders from './pages/Orders.tsx';
 
 import '@xelene/tgui/dist/styles.css';
 import { AppRoot } from '@xelene/tgui';
+
+const NoMatch = () => (
+  <div>
+    <h2>Nothing to see here!</h2>
+    <p>
+      <Link to="/">Go to the home page</Link>
+    </p>
+  </div>
+);
 
 const App = () => {
   const showPopup = useShowPopup();
@@ -52,9 +64,14 @@ const App = () => {
       {!isInvalidVersion && (
         <BrowserRouter>
           <Routes>
-            <Route path='/' element={<Main/>}/>
-            <Route path='/product/:productCode' element={<ProductCard/>}/>
-            {/*<Route path='/cart' element={<ShoppingCart/>}/>*/}
+            <Route path="/" element={<Main/>}>
+              <Route index element={<Navigate to="/catalog" replace/>}/>
+              <Route path="catalog" element={<Catalog/>}/>
+              <Route path="cart" element={<ShoppingCart/>}/>
+              <Route path="orders" element={<Orders/>}/>
+            </Route>
+            <Route path="/product/:productCode" element={<ProductCard/>}/>
+            <Route path="*" element={<NoMatch/>}/>
           </Routes>
         </BrowserRouter>)}
     </AppRoot>

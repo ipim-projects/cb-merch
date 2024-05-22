@@ -51,7 +51,7 @@ const ProductCard: React.FunctionComponent = () => {
           children="Товар добавлен в корзину"
           onClose={() => setIsSnackbarShown(false)}
           after={(
-            <Snackbar.Button /*onClick={() => navigate(`/product/${item.product.code}`)}*/>
+            <Snackbar.Button onClick={() => navigate('/cart')}>
               В корзину
             </Snackbar.Button>
           )}
