@@ -16,7 +16,7 @@ import {
   Tappable, Textarea
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
-import { difference, equals, isEmpty } from 'ramda';
+import { ascend, difference, equals, isEmpty, prop, sort } from 'ramda';
 import { MainButton } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
@@ -31,7 +31,6 @@ import {
   useLazyGetDeliveryPriceQuery,
   useLazySaveAddressQuery
 } from '../redux/api.ts';
-import { getColorOption } from '../helpers/product.ts';
 import Loading from '../components/Loading.tsx';
 // @ts-ignore
 import showBoxberryMap from '../helpers/boxberry.js';
@@ -40,7 +39,8 @@ import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
 import { DeliveryType } from '../types/delivery.ts';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
-import { BuyerInfo } from "../types/orders.ts";
+import { BuyerInfo } from '../types/orders.ts';
+import { ShoppingCartItem } from '../types/cart.ts';
 
 export const DELIVERY_OPTIONS: MultiselectOption[] = [
   { value: DeliveryType.BOXBERRY_PVZ, label: 'Boxberry: Пункт выдачи' },
@@ -118,6 +118,42 @@ const ShoppingCart: React.FunctionComponent = () => {
     console.log('resultDeliveryPrice', resultDeliveryPrice);
   }
 
+  const cartItemOptions = (item: ShoppingCartItem) => {
+    const options = item.productVariant.productOptions;
+    if (isEmpty(options)) return null;
+    const optionChips = sort(ascend(prop('type')), options).map((option, index) => {
+      if (option.type === 'color') return <Chip
+        key={index}
+        mode="elevated"
+        before={
+          <Avatar
+            size={28}
+            style={{ backgroundColor: option.value }}
+          />
+        }
+      >
+        {option.name}
+      </Chip>;
+      if (option.type === 'size') return <Chip
+        key={index}
+        mode="elevated"
+      >
+        {option.value}
+      </Chip>
+    });
+    if (isEmpty(optionChips)) return null;
+    return (
+      <div
+        style={{
+          display: 'flex',
+          gap: 16
+        }}
+      >
+        {optionChips}
+      </div>
+    );
+  }
+
   const boxberryCallback = (result: any) => {
     console.log('Выбрано отделение:', result);
     if (result.price) {
@@ -128,8 +164,8 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   const pochtaCallback = (result: any) => {
     console.log('Выбрано отделение:', result);
-    if (result.cashOfDelivery ) {
-      setDeliveryPrice(result.cashOfDelivery );
+    if (result.cashOfDelivery) {
+      setDeliveryPrice(result.cashOfDelivery);
       setDeliveryPriceFoundOut(true);
     }
   }
@@ -162,22 +198,13 @@ const ShoppingCart: React.FunctionComponent = () => {
             <Cell
               key={index}
               subtitle={item.product.description}
-              description={
-                <Chip
-                  mode="elevated"
-                  before={
-                    <Avatar
-                      size={28}
-                      style={{ backgroundColor: getColorOption(item.productVariant)?.value ?? '' }}
-                    />
-                  }
-                >
-                  {getColorOption(item.productVariant)?.value}
-                </Chip>
-              }
+              description={cartItemOptions(item)}
               onClick={() => navigate(`/product/${item.product.code}`)}
               after={
                 <>
+                  <Info type="text" style={{ marginRight: '16px' }}>
+                    {item.productVariant.price * item.count} ₽
+                  </Info>
                   <Button
                     mode="outline"
                     size="s"
