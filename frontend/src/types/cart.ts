@@ -1,4 +1,4 @@
-import { Product, ProductVariant } from '../types/products.ts';
+import { Product, ProductVariant } from './products.ts';
 
 export interface ShoppingCartItem {
   product: Product,

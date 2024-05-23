@@ -46,7 +46,7 @@ export const DELIVERY_OPTIONS: MultiselectOption[] = [
   { value: DeliveryType.BOXBERRY_PVZ, label: 'Boxberry: Пункт выдачи' },
   { value: DeliveryType.BOXBERRY_COURIER, label: 'Boxberry: Курьер' },
   { value: DeliveryType.POST_PVZ, label: 'Почта России: Пункт выдачи' },
-  { value: DeliveryType.POST_COURIER, label: 'Почта России: Курьер' }
+  // { value: DeliveryType.POST_COURIER, label: 'Почта России: Курьер' }
 ]
 
 const ShoppingCart: React.FunctionComponent = () => {
@@ -261,7 +261,8 @@ const ShoppingCart: React.FunctionComponent = () => {
           >
           </Multiselect>
           {deliveryType.length > 0
-            && [DeliveryType.BOXBERRY_COURIER.toString(), DeliveryType.POST_COURIER.toString()].includes(deliveryType[0].value.toString())
+            // && [DeliveryType.BOXBERRY_COURIER.toString(), DeliveryType.POST_COURIER.toString()].includes(deliveryType[0].value.toString())
+            && DeliveryType.BOXBERRY_COURIER === deliveryType[0].value.toString()
             && <Input
               header='Адрес доставки'
               placeholder='Введите адрес доставки'

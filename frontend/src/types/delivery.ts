@@ -2,7 +2,7 @@ export enum DeliveryType {
   BOXBERRY_PVZ = 'boxberryPvz',
   BOXBERRY_COURIER = 'boxberryCourier',
   POST_PVZ = 'postPvz',
-  POST_COURIER = 'postCourier',
+  // POST_COURIER = 'postCourier',
 }
 
 export interface DeliveryAddress {
