@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, List, Placeholder, Section, Snackbar } from '@xelene/tgui';
+import { Button, Info, List, Placeholder, Section, Snackbar } from '@xelene/tgui';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 import { isEmpty } from 'ramda';
 
@@ -74,6 +74,14 @@ const ProductCard: React.FunctionComponent = () => {
             />}
           </Placeholder>
         </Section>
+        {selectedVariant?.currentBatch && <Section header="Текущая партия">
+          <Info type="text">
+            Минимальное количество в партии: {selectedVariant.currentBatch.batchSize} шт.
+          </Info>
+          <Info type="text">
+            Уже набранное и оплаченное количество: {selectedVariant.currentBatch.totalCountPaid} шт.
+          </Info>
+        </Section>}
         {!isEmpty(product.options) && product.variants.length > 1 && <Options
           options={product.options}
           variants={product.variants}

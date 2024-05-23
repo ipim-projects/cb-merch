@@ -42,8 +42,28 @@ export interface ProductOption {
 
 export interface ProductVariant {
   code: string,
+  currentBatch: Batch,
   sourceCode: string,
   productOptions: ProductOption[],
-  price:	number,
+  price: number,
   weight:	number,
+}
+
+type BatchStatusType = 'new' | 'inProcess' | 'completed' | 'canceled';
+
+export const BatchStatus: Record<BatchStatusType, string> = {
+  new: 'Новая',
+  inProcess: 'В производстве',
+  completed: 'Произведена',
+  canceled: 'Отменена',
+}
+
+export interface Batch {
+  code: string,
+  sourceCode: string,
+  name: string,
+  batchSize: number,
+  batchStatus: BatchStatusType,
+  totalCount: number,
+  totalCountPaid: number,
 }
