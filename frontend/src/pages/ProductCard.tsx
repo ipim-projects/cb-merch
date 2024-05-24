@@ -8,7 +8,7 @@ import { useGetProductQuery, useGetProductImageQuery, useAddItemToCartMutation }
 import Options from '../components/Options.tsx';
 import CartIconButton from '../components/CartIconButton.tsx';
 import Loading from '../components/Loading.tsx';
-import { ProductVariant } from '../types/products.ts';
+import { BatchStatus, BatchStatusType, ProductVariant } from '../types/products.ts';
 
 const ProductCard: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -84,6 +84,9 @@ const ProductCard: React.FunctionComponent = () => {
               </Info>
               <Info type="text">
                 Уже набранное и оплаченное количество: {selectedVariant.currentBatch.totalCountPaid} шт.
+              </Info>
+              <Info type="text">
+                Статус партии: {BatchStatus[selectedVariant.currentBatch.batchStatus as BatchStatusType]}
               </Info>
             </Accordion.Content>
           </Accordion>

@@ -29,6 +29,6 @@ export interface DeliveryPrice {
 }
 
 export interface WidgetDeliveryPrice {
-  deliveryAddress: Omit<DeliveryAddress, 'code'>,
+  address: Omit<DeliveryAddress, 'code'>,
   price: number,
 }

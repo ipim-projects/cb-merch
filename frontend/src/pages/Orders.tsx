@@ -3,6 +3,7 @@ import { Cell, Headline, Info, Section } from '@xelene/tgui';
 
 import { useListOrdersQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
+import { OrderStatus, OrderStatusType } from '../types/orders.ts';
 
 const Orders: React.FunctionComponent = () => {
   const { data: orders, isLoading } = useListOrdersQuery({});
@@ -19,10 +20,10 @@ const Orders: React.FunctionComponent = () => {
           <Cell
             key={index}
             // subtitle={product.description}
-            after={<Info type="text">Статус {order.status}</Info>}
+            after={<Info type="text">{OrderStatus[order.status as OrderStatusType]}</Info>}
             // onClick={() => navigate(`/product/${product.code}`)}
           >
-            Код заказа {order.code} от какой-то даты
+            Заказ {order.sourceCode} от {order.createdAtUtc.toLocaleDateString('ru-RU')}
           </Cell>
         ))}
       </Section>

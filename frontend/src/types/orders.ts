@@ -2,12 +2,26 @@ import { User } from './user.ts';
 import { Product } from './products.ts';
 import { DeliveryAddress } from './delivery.ts';
 
+export type OrderStatusType = 'new' | 'canceled' | 'partialPaid' | 'paid' | 'inProcess' | 'produced' | 'sentToBuyer' | 'deliveredToBuyer';
+
+export const OrderStatus: Record<OrderStatusType, string> = {
+  new: 'Новый',
+  canceled: 'Отменён',
+  partialPaid: 'Оплачен частично',
+  paid: 'Оплачен',
+  inProcess: 'В производстве',
+  produced: 'Произведён',
+  sentToBuyer: 'Отправлен',
+  deliveredToBuyer: 'Доставлен',
+}
+
 export interface OrderBaseInfo {
   code: string,
   sourceCode: string,
   user: User,
   status: string,
   rejectReason: string,
+  createdAtUtc: Date,
 }
 
 export interface OrderItem {

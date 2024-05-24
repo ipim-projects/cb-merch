@@ -111,7 +111,8 @@ const ShoppingCart: React.FunctionComponent = () => {
       deliveryType: deliveryType[0].value as DeliveryType,
       address
     });
-    if (!checkedAddress) return;
+    // TODO: выдать ошибку, если не определился индекс
+    if (!checkedAddress?.zipCode) return;
     const { data: savedAddress } = await saveAddressQueryTrigger(checkedAddress);
     if (!savedAddress) return;
     const { data: resultDeliveryPrice } = await getDeliveryPriceQueryTrigger(savedAddress.code);
@@ -163,15 +164,15 @@ const ShoppingCart: React.FunctionComponent = () => {
     if (result.price) {
       setDeliveryPrice(result.price);
       setDeliveryPriceFoundOut(true);
+      // парсим адрес через вызов delivery/pochtaru/check/address
+      const { data: checkedAddress } = await checkAddressQueryTrigger({
+        deliveryType: DeliveryType.BOXBERRY_PVZ,
+        address: result.address
+      });
+      console.log('checkedAddress', checkedAddress);
+      if (!checkedAddress?.zipCode) return;
       const pvzAddress: WidgetDeliveryPrice = {
-        deliveryAddress: {
-          // TODO: заглушка, приходит нераспарсенный адрес
-          country: 'Россия',
-          city: 'Москва',
-          address: result.address,
-          zipCode: result.zip,
-          deliveryType: DeliveryType.BOXBERRY_PVZ,
-        },
+        address: { ...checkedAddress, pvzCode: result.id, },
         price: result.price,
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);
@@ -186,13 +187,14 @@ const ShoppingCart: React.FunctionComponent = () => {
       setDeliveryPrice(deliveryPrice);
       setDeliveryPriceFoundOut(true);
       const pvzAddress: WidgetDeliveryPrice = {
-        deliveryAddress: {
+        address: {
           country: 'Россия',
           region: result.regionTo,
           area: result.areaTo,
           city: result.cityTo,
           address: result.addressTo,
           zipCode: result.indexTo,
+          pvzCode: result.id,
           deliveryType: DeliveryType.POST_PVZ,
         },
         price: deliveryPrice,

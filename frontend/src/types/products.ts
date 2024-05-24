@@ -49,7 +49,7 @@ export interface ProductVariant {
   weight:	number,
 }
 
-type BatchStatusType = 'new' | 'inProcess' | 'completed' | 'canceled';
+export type BatchStatusType = 'new' | 'inProcess' | 'completed' | 'canceled';
 
 export const BatchStatus: Record<BatchStatusType, string> = {
   new: 'Новая',
