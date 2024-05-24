@@ -42,8 +42,8 @@ const App = () => {
       } catch (e) {
         console.log(e);
       }
-      // window.Telegram.WebApp.expand();
-      console.log(`initData: ${window.Telegram.WebApp.initData}`);
+      window.Telegram.WebApp.expand();
+      // console.log(`initData: ${window.Telegram.WebApp.initData}`);
       // showPopup({ message: `initData: ${tgWebApp.initData.slice(0, 50)}` });
     }
   }, [])
