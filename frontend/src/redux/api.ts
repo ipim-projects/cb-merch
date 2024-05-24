@@ -123,10 +123,6 @@ export const api = createApi({
     listOrders: builder.query<ListResponse<OrderBaseInfo>, ListRequestQueryArg>({
       query: ({ pageIndex = 1, pageSize = 30 }) =>
         `order/list?pageIndex=${pageIndex}&pageSize=${pageSize}`,
-      transformResponse: (response: ListResponse<OrderBaseInfo>) => ({
-        ...response,
-        items: response.items.map((item) => ({ ...item, createdAtUtc: new Date(item.createdAtUtc) })),
-      }),
     }),
     createOrder: builder.mutation<Order, BuyerInfo>({
       query: buyerInfo => ({

@@ -21,7 +21,7 @@ export interface OrderBaseInfo {
   user: User,
   status: string,
   rejectReason: string,
-  createdAtUtc: Date,
+  createdAtUtc: string,
 }
 
 export interface OrderItem {

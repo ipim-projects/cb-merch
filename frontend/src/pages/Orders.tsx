@@ -23,7 +23,7 @@ const Orders: React.FunctionComponent = () => {
             after={<Info type="text">{OrderStatus[order.status as OrderStatusType]}</Info>}
             // onClick={() => navigate(`/product/${product.code}`)}
           >
-            Заказ {order.sourceCode} от {order.createdAtUtc.toLocaleDateString('ru-RU')}
+            Заказ {order.sourceCode} от {new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}
           </Cell>
         ))}
       </Section>

@@ -70,7 +70,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
   const [decreaseOneItem, { isLoading: isDecreasing }] = useDecreaseOneItemMutation();
   const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
-  const [createOrder, { isLoading: isOrderCreating }] = useCreateOrderMutation();
+  const [createOrder, { isLoading: isOrderCreating, isSuccess: isCreateOrderSuccess }] = useCreateOrderMutation();
 
   const [checkAddressQueryTrigger] = useLazyCheckAddressQuery();
   const [getDeliveryPriceQueryTrigger] = useLazyGetDeliveryPriceQuery();
@@ -91,18 +91,16 @@ const ShoppingCart: React.FunctionComponent = () => {
     setDeliveryPrice(0);
     setDeliveryPriceFoundOut(false);
     if (deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value) {
-      console.log('showBoxberryMap, price', cart?.totalPrice, ', вес', cart?.totalWeight);
       showBoxberryMap(boxberryCallback, cart?.totalPrice, cart?.totalWeight);
     }
     if (deliveryType.length > 0 && DeliveryType.POST_PVZ === deliveryType[0].value) {
-      console.log('showPochtaMap');
       showPochtaMap(pochtaCallback, cart?.totalPrice, cart?.totalWeight);
     }
   }, [deliveryType]);
 
   const handlePlaceOrder = async () => {
     await createOrder(buyerInfo);
-    setIsSnackbarShown(true);
+    if(isCreateOrderSuccess) setIsSnackbarShown(true);
   }
 
   const handleCheckAddress = async () => {
