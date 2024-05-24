@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Info, List, Placeholder, Section, Snackbar } from '@xelene/tgui';
+import { Accordion, Button, Info, List, Placeholder, Section, Snackbar } from '@xelene/tgui';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 import { isEmpty } from 'ramda';
 
@@ -15,6 +15,7 @@ const ProductCard: React.FunctionComponent = () => {
   const { productCode } = useParams();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>();
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
 
   const { data: product, isLoading, isSuccess } = useGetProductQuery(productCode!);
   const { data: image } = useGetProductImageQuery(
@@ -74,13 +75,18 @@ const ProductCard: React.FunctionComponent = () => {
             />}
           </Placeholder>
         </Section>
-        {selectedVariant?.currentBatch && <Section header="Текущая партия">
-          <Info type="text">
-            Минимальное количество в партии: {selectedVariant.currentBatch.batchSize} шт.
-          </Info>
-          <Info type="text">
-            Уже набранное и оплаченное количество: {selectedVariant.currentBatch.totalCountPaid} шт.
-          </Info>
+        {selectedVariant?.currentBatch && <Section>
+          <Accordion onChange={() => setIsAccordionExpanded(!isAccordionExpanded)} expanded={isAccordionExpanded}>
+            <Accordion.Summary>Текущая партия</Accordion.Summary>
+            <Accordion.Content>
+              <Info type="text">
+                Минимальное количество в партии: {selectedVariant.currentBatch.batchSize} шт.
+              </Info>
+              <Info type="text">
+                Уже набранное и оплаченное количество: {selectedVariant.currentBatch.totalCountPaid} шт.
+              </Info>
+            </Accordion.Content>
+          </Accordion>
         </Section>}
         {!isEmpty(product.options) && product.variants.length > 1 && <Options
           options={product.options}

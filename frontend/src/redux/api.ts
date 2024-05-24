@@ -4,7 +4,12 @@ import { ListRequestQueryArg, ListResponse } from '../types/common.ts';
 import { Product, ProductDetails } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
 import { BuyerInfo, Order, OrderBaseInfo } from '../types/orders.ts';
-import { CheckDeliveryAddressQueryArg, DeliveryAddress, DeliveryPrice } from '../types/delivery.ts';
+import {
+  CheckDeliveryAddressQueryArg,
+  DeliveryAddress,
+  DeliveryPrice,
+  WidgetDeliveryPrice
+} from '../types/delivery.ts';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: 'https://test.store4merch.ru/api/v1/',
@@ -101,6 +106,13 @@ export const api = createApi({
         body: address
       }),
     }),
+    saveWidgetAddress: builder.query<void, WidgetDeliveryPrice>({
+      query: addressPrice => ({
+        url: 'delivery/widget/save',
+        method: 'POST',
+        body: addressPrice
+      }),
+    }),
     getDeliveryPrice: builder.query<DeliveryPrice, string>({
       query: addressCode => ({
         url: `delivery/price?addressCode=${addressCode}`,
@@ -135,6 +147,7 @@ export const {
   useLazyCheckAddressQuery,
   useLazyGetDeliveryPriceQuery,
   useLazySaveAddressQuery,
+  useLazySaveWidgetAddressQuery,
   useListOrdersQuery,
   useCreateOrderMutation,
 } = api;

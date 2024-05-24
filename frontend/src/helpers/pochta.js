@@ -1,10 +1,12 @@
-const showPochtaMap = pochtaCallback => {
+const showPochtaMap = (pochtaCallback, ordersum, weight) => {
   ecomStartWidget({
     id: 48776,
     callbackFunction: pochtaCallback,
     containerId: 'ecom-widget',
-    sumoc: 1000,
-    weight: 500,
+    // сумма в копейках
+    sumoc: ordersum * 100,
+    // вес в граммах
+    weight: weight
   });
 }
 

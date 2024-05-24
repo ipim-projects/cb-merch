@@ -8,12 +8,14 @@ import {
   Chip,
   Headline,
   IconButton,
-  Info, Input,
+  Info,
+  Input,
   List,
   Multiselect,
   Section,
   Snackbar,
-  Tappable, Textarea
+  Tappable,
+  Textarea
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
 import { ascend, difference, equals, isEmpty, prop, sort } from 'ramda';
@@ -23,13 +25,14 @@ import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable
 
 import {
   useAddItemToCartMutation,
-  useGetShoppingCartQuery,
-  useRemoveItemFromCartMutation,
   useCreateOrderMutation,
   useDecreaseOneItemMutation,
+  useGetShoppingCartQuery,
   useLazyCheckAddressQuery,
   useLazyGetDeliveryPriceQuery,
-  useLazySaveAddressQuery
+  useLazySaveAddressQuery,
+  useLazySaveWidgetAddressQuery,
+  useRemoveItemFromCartMutation
 } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 // @ts-ignore
@@ -37,7 +40,7 @@ import showBoxberryMap from '../helpers/boxberry.js';
 // @ts-ignore
 import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
-import { DeliveryType } from '../types/delivery.ts';
+import { DeliveryType, WidgetDeliveryPrice } from '../types/delivery.ts';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
 import { BuyerInfo } from '../types/orders.ts';
 import { ShoppingCartItem } from '../types/cart.ts';
@@ -72,6 +75,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [checkAddressQueryTrigger] = useLazyCheckAddressQuery();
   const [getDeliveryPriceQueryTrigger] = useLazyGetDeliveryPriceQuery();
   const [saveAddressQueryTrigger] = useLazySaveAddressQuery();
+  const [saveWidgetAddressQueryTrigger] = useLazySaveWidgetAddressQuery();
 
   const navigate = useNavigate();
 
@@ -87,12 +91,12 @@ const ShoppingCart: React.FunctionComponent = () => {
     setDeliveryPrice(0);
     setDeliveryPriceFoundOut(false);
     if (deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value) {
-      console.log('showBoxberryMap');
-      showBoxberryMap(boxberryCallback);
+      console.log('showBoxberryMap, price', cart?.totalPrice, ', вес', cart?.totalWeight);
+      showBoxberryMap(boxberryCallback, cart?.totalPrice, cart?.totalWeight);
     }
     if (deliveryType.length > 0 && DeliveryType.POST_PVZ === deliveryType[0].value) {
       console.log('showPochtaMap');
-      showPochtaMap(pochtaCallback);
+      showPochtaMap(pochtaCallback, cart?.totalPrice, cart?.totalWeight);
     }
   }, [deliveryType]);
 
@@ -154,19 +158,46 @@ const ShoppingCart: React.FunctionComponent = () => {
     );
   }
 
-  const boxberryCallback = (result: any) => {
+  const boxberryCallback = async (result: any) => {
     console.log('Выбрано отделение:', result);
     if (result.price) {
       setDeliveryPrice(result.price);
       setDeliveryPriceFoundOut(true);
+      const pvzAddress: WidgetDeliveryPrice = {
+        deliveryAddress: {
+          // TODO: заглушка, приходит нераспарсенный адрес
+          country: 'Россия',
+          city: 'Москва',
+          address: result.address,
+          zipCode: result.zip,
+          deliveryType: DeliveryType.BOXBERRY_PVZ,
+        },
+        price: result.price,
+      }
+      await saveWidgetAddressQueryTrigger(pvzAddress);
     }
   }
 
-  const pochtaCallback = (result: any) => {
+  const pochtaCallback = async (result: any) => {
     console.log('Выбрано отделение:', result);
     if (result.cashOfDelivery) {
-      setDeliveryPrice(result.cashOfDelivery);
+      // сумма в копейках
+      const deliveryPrice = result.cashOfDelivery / 100;
+      setDeliveryPrice(deliveryPrice);
       setDeliveryPriceFoundOut(true);
+      const pvzAddress: WidgetDeliveryPrice = {
+        deliveryAddress: {
+          country: 'Россия',
+          region: result.regionTo,
+          area: result.areaTo,
+          city: result.cityTo,
+          address: result.addressTo,
+          zipCode: result.indexTo,
+          deliveryType: DeliveryType.POST_PVZ,
+        },
+        price: deliveryPrice,
+      }
+      await saveWidgetAddressQueryTrigger(pvzAddress);
     }
   }
 
@@ -288,6 +319,9 @@ const ShoppingCart: React.FunctionComponent = () => {
           }
         </Section>
         <Section>
+          <Info type="text">
+            Общий вес: {cart?.totalWeight} г
+          </Info>
           <Info type="text">
             Стоимость доставки: {deliveryPrice} ₽
           </Info>
