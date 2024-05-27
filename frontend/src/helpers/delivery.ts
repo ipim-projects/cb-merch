@@ -1,5 +1,6 @@
-import { DeliveryAddress } from '../types/delivery.ts';
 import { isNil } from 'ramda';
+
+import { DeliveryAddress } from '../types/delivery.ts';
 
 export const deliveryAddressToString = (address: DeliveryAddress) => {
   const { zipCode, region, area, city, address: streetHouse } = address;

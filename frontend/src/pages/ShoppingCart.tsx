@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Avatar,
   Badge,
   Button,
   Cell,
-  Chip,
   Headline,
   IconButton,
   Info,
@@ -18,7 +16,7 @@ import {
   Textarea
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
-import { ascend, difference, equals, isEmpty, prop, sort } from 'ramda';
+import { difference, equals, isEmpty } from 'ramda';
 import { MainButton } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
@@ -40,22 +38,15 @@ import showBoxberryMap from '../helpers/boxberry.js';
 // @ts-ignore
 import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
-import { DeliveryType, WidgetDeliveryPrice } from '../types/delivery.ts';
+import { DeliveryOptions, DeliveryType, WidgetDeliveryPrice } from '../types/delivery.ts';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
 import { BuyerInfo } from '../types/orders.ts';
-import { ShoppingCartItem } from '../types/cart.ts';
-
-export const DELIVERY_OPTIONS: MultiselectOption[] = [
-  { value: DeliveryType.BOXBERRY_PVZ, label: 'Boxberry: Пункт выдачи' },
-  { value: DeliveryType.BOXBERRY_COURIER, label: 'Boxberry: Курьер' },
-  { value: DeliveryType.POST_PVZ, label: 'Почта России: Пункт выдачи' },
-  // { value: DeliveryType.POST_COURIER, label: 'Почта России: Курьер' }
-]
+import { productOptionsChips } from '../helpers/product.tsx';
 
 const ShoppingCart: React.FunctionComponent = () => {
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
   const [deliveryType, setDeliveryType] = useState<MultiselectOption[]>(
-    DELIVERY_OPTIONS.filter(opt => opt.value === DeliveryType.BOXBERRY_COURIER)
+    DeliveryOptions.filter(opt => opt.value === DeliveryType.BOXBERRY_COURIER)
   );
   const [address, setAddress] = useState('');
   const [deliveryPrice, setDeliveryPrice] = useState(0);
@@ -119,42 +110,6 @@ const ShoppingCart: React.FunctionComponent = () => {
     setDeliveryPriceFoundOut(true);
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
     console.log('resultDeliveryPrice', resultDeliveryPrice);
-  }
-
-  const cartItemOptions = (item: ShoppingCartItem) => {
-    const options = item.productVariant.productOptions;
-    if (isEmpty(options)) return null;
-    const optionChips = sort(ascend(prop('type')), options).map((option, index) => {
-      if (option.type === 'color') return <Chip
-        key={index}
-        mode="elevated"
-        before={
-          <Avatar
-            size={28}
-            style={{ backgroundColor: option.value }}
-          />
-        }
-      >
-        {option.name}
-      </Chip>;
-      if (option.type === 'size') return <Chip
-        key={index}
-        mode="elevated"
-      >
-        {option.value}
-      </Chip>
-    });
-    if (isEmpty(optionChips)) return null;
-    return (
-      <div
-        style={{
-          display: 'flex',
-          gap: 16
-        }}
-      >
-        {optionChips}
-      </div>
-    );
   }
 
   const boxberryCallback = async (result: any) => {
@@ -229,7 +184,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             <Cell
               key={index}
               subtitle={item.product.description}
-              description={cartItemOptions(item)}
+              description={productOptionsChips(item.productVariant.productOptions)}
               onClick={() => navigate(`/product/${item.product.code}`)}
               after={
                 <>
@@ -281,7 +236,7 @@ const ShoppingCart: React.FunctionComponent = () => {
         <Section header="Доставка и получение">
           <Multiselect
             header="Способ доставки"
-            options={DELIVERY_OPTIONS}
+            options={DeliveryOptions}
             value={deliveryType}
             closeDropdownAfterSelect={true}
             onChange={selected => setDeliveryType(

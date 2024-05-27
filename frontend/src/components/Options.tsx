@@ -3,7 +3,7 @@ import { Avatar, Chip, Section } from '@xelene/tgui';
 import { isNil, reject } from 'ramda';
 
 import { ProductOption, ProductVariant } from '../types/products.ts';
-import { getVariant } from '../helpers/product.ts';
+import { getVariant } from '../helpers/product.tsx';
 
 interface OptionsProps {
   options: ProductOption[];

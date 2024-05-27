@@ -1,5 +1,5 @@
 import { User } from './user.ts';
-import { Product } from './products.ts';
+import { Batch, Product, ProductOption } from './products.ts';
 import { DeliveryAddress } from './delivery.ts';
 
 export type OrderStatusType = 'new' | 'canceled' | 'partialPaid' | 'paid' | 'inProcess' | 'produced' | 'sentToBuyer' | 'deliveredToBuyer';
@@ -19,14 +19,15 @@ export interface OrderBaseInfo {
   code: string,
   sourceCode: string,
   user: User,
-  status: string,
+  status: OrderStatusType,
   rejectReason: string,
   createdAtUtc: string,
 }
 
 export interface OrderItem {
-  // batch: Batch,
+  batch: Batch,
   product: Product,
+  selectedOptions: ProductOption[],
   count: number,
   price: number,
 }
@@ -42,7 +43,7 @@ export interface OrderDelivery {
   deliveryTrackNumber: string,
 }
 
-export type Order = OrderBaseInfo & OrderItem[] & OrderPayment & OrderDelivery;
+export type Order = OrderBaseInfo & { items: OrderItem[] } & OrderPayment & OrderDelivery;
 
 export interface BuyerInfo {
   buyerName: string,

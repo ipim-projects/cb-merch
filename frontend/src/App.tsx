@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 
+import '@xelene/tgui/dist/styles.css';
+import { AppRoot } from '@xelene/tgui';
+
 import Main from './pages/Main';
 import ProductCard from './pages/ProductCard';
 import Catalog from './pages/Catalog.tsx';
 import ShoppingCart from './pages/ShoppingCart.tsx';
 import Orders from './pages/Orders.tsx';
-
-import '@xelene/tgui/dist/styles.css';
-import { AppRoot } from '@xelene/tgui';
+import OrderInfo from './pages/OrderInfo.tsx';
 
 const NoMatch = () => (
   <div>
@@ -71,6 +72,7 @@ const App = () => {
               <Route path="orders" element={<Orders/>}/>
             </Route>
             <Route path="/product/:productCode" element={<ProductCard/>}/>
+            <Route path="/order/:orderCode" element={<OrderInfo/>}/>
             <Route path="*" element={<NoMatch/>}/>
           </Routes>
         </BrowserRouter>)}

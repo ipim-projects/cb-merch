@@ -1,9 +1,18 @@
+import { MultiselectOption } from "@xelene/tgui/dist/components/Form/Multiselect/types";
+
 export enum DeliveryType {
   BOXBERRY_PVZ = 'boxberryPvz',
   BOXBERRY_COURIER = 'boxberryCourier',
   POST_PVZ = 'postPvz',
   // POST_COURIER = 'postCourier',
 }
+
+export const DeliveryOptions: MultiselectOption[] = [
+  { value: DeliveryType.BOXBERRY_PVZ, label: 'Boxberry: Пункт выдачи' },
+  { value: DeliveryType.BOXBERRY_COURIER, label: 'Boxberry: Курьер' },
+  { value: DeliveryType.POST_PVZ, label: 'Почта России: Пункт выдачи' },
+  // { value: DeliveryType.POST_COURIER, label: 'Почта России: Курьер' }
+];
 
 export interface DeliveryAddress {
   country: string,

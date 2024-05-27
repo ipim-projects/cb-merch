@@ -125,6 +125,9 @@ export const api = createApi({
         body: buyerInfo,
       }),
     }),
+    getOrder: builder.query<Order, string>({
+      query: code => `order/${code}`,
+    }),
   }),
 });
 
@@ -144,4 +147,5 @@ export const {
   useLazySaveWidgetAddressQuery,
   useListOrdersQuery,
   useCreateOrderMutation,
+  useGetOrderQuery,
 } = api;

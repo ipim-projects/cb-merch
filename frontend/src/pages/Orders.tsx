@@ -1,11 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Cell, Headline, Info, Section } from '@xelene/tgui';
 
 import { useListOrdersQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 import { OrderStatus, OrderStatusType } from '../types/orders.ts';
 
+
 const Orders: React.FunctionComponent = () => {
+  const navigate = useNavigate();
   const { data: orders, isLoading } = useListOrdersQuery({});
 
   if (isLoading) return (
@@ -21,9 +24,9 @@ const Orders: React.FunctionComponent = () => {
             key={index}
             // subtitle={product.description}
             after={<Info type="text">{OrderStatus[order.status as OrderStatusType]}</Info>}
-            // onClick={() => navigate(`/product/${product.code}`)}
+            onClick={() => navigate(`/order/${order.code}`)}
           >
-            Заказ {order.sourceCode} от {new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}
+            Заказ № {order.sourceCode} от {new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}
           </Cell>
         ))}
       </Section>
