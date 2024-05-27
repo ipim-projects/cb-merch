@@ -192,7 +192,7 @@ const ShoppingCart: React.FunctionComponent = () => {
           city: result.cityTo,
           address: result.addressTo,
           zipCode: result.indexTo,
-          pvzCode: result.id,
+          pvzCode: result.id.toString(),
           deliveryType: DeliveryType.POST_PVZ,
         },
         price: deliveryPrice,
