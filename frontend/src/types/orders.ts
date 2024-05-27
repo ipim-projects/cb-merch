@@ -51,3 +51,11 @@ export interface BuyerInfo {
   buyerEmail: string,
   comment?: string,
 }
+
+export interface Payment {
+  orderCode: string,
+  totalPrice: number,
+  paymentUrl: string,
+  paymentSystemCode: string
+}
+

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Badge, Button, Cell, Headline, Info, List, Section } from '@xelene/tgui';
 import { MainButton } from '@vkruglikov/react-telegram-web-app';
 
-import { useGetOrderQuery } from '../redux/api.ts';
+import { useGetOrderQuery, useGetPaymentQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 import { productOptionsChips } from '../helpers/product.tsx';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
@@ -12,12 +12,17 @@ import { DeliveryOptions } from '../types/delivery.ts';
 const OrderInfo: React.FunctionComponent = () => {
   const { orderCode } = useParams();
   const { data: order, isLoading } = useGetOrderQuery(orderCode!);
+  const { data: payment } = useGetPaymentQuery(orderCode!);
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
 
   if (isLoading || !order) return (
     <Loading/>
   );
+
+  /*const paymentCallback = (url: string, status: "paid" | "cancelled" | "failed" | "pending") => {
+    console.log('paymentCallback', url, status);
+  }*/
 
   return (
     <>
@@ -56,17 +61,18 @@ const OrderInfo: React.FunctionComponent = () => {
             Стоимость доставки: {order.deliveryPrice ?? 0} ₽
           </Info>
           <Info type="text">
-            Итого: {(order.totalPrice ?? 0) + (order.deliveryPrice ?? 0)} ₽
+            Итого: {order.totalPrice ?? 0} ₽
           </Info>
         </Section>
-        {(order.status === 'new' || order.status === 'partialPaid') && <Section>
+        {(order.status === 'new' || order.status === 'canceled') && payment?.paymentUrl && <Section>
           {isTelegram ?
             <MainButton
               text={'Перейти к оплате'}
-              // onClick={handlePlaceOrder}
+              onClick={() => window.Telegram?.WebApp?.openLink(payment.paymentUrl, { try_instant_view: true })}
             /> :
             <Button
-              // onClick={handlePlaceOrder}
+              Component="a"
+              href={payment.paymentUrl}
             >
               Перейти к оплате
             </Button>

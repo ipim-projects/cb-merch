@@ -115,7 +115,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const boxberryCallback = async (result: any) => {
     console.log('Выбрано отделение:', result);
     if (result.price) {
-      setDeliveryPrice(result.price);
+      setDeliveryPrice(Number(result.price));
       setDeliveryPriceFoundOut(true);
       // парсим адрес через вызов delivery/pochtaru/check/address
       const { data: checkedAddress } = await checkAddressQueryTrigger({
