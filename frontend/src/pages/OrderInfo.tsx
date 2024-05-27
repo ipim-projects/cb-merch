@@ -1,7 +1,7 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Badge, Button, Cell, Headline, Info, List, Section } from '@xelene/tgui';
-import { MainButton } from '@vkruglikov/react-telegram-web-app';
+import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 
 import { useGetOrderQuery, useGetPaymentQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
@@ -10,6 +10,7 @@ import { deliveryAddressToString } from '../helpers/delivery.ts';
 import { DeliveryOptions } from '../types/delivery.ts';
 
 const OrderInfo: React.FunctionComponent = () => {
+  const navigate = useNavigate();
   const { orderCode } = useParams();
   const { data: order, isLoading } = useGetOrderQuery(orderCode!);
   const { data: payment } = useGetPaymentQuery(orderCode!);
@@ -26,6 +27,7 @@ const OrderInfo: React.FunctionComponent = () => {
 
   return (
     <>
+      {isTelegram && <BackButton onClick={() => navigate(-1)}/>}
       <Headline style={{ padding: '0 24px' }}>
         Заказ № {order.sourceCode} от {new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}
       </Headline>
