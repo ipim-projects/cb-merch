@@ -10,13 +10,19 @@ export const rtkQueryErrorLogger: Middleware =
       console.warn('We got a rejected action!');
       console.log(action);
       if (window.Telegram?.WebApp?.initData) {
-        window.Telegram.WebApp.showPopup({
-          title: `Ошибка ${(action.payload as { status: string }).status}`,
-          message:
-            action.payload && typeof action.payload === 'object' && 'data' in action.payload
-              ? (action.payload.data as { title: string }).title ?? action.payload.data
-              : action.error.message ?? 'Неизвестная ошибка',
-        });
+        if ((action.payload as { status: string | number }).status === 401) {
+          window.Telegram.WebApp.showPopup({
+            message: 'Требуется авторизация'
+          });
+        } else {
+          window.Telegram.WebApp.showPopup({
+            title: `Ошибка ${(action.payload as { status: string | number }).status}`,
+            message:
+              action.payload && typeof action.payload === 'object' && 'data' in action.payload
+                ? (action.payload.data as { title: string }).title ?? action.payload.data
+                : action.error.message ?? 'Неизвестная ошибка',
+          });
+        }
       }
     }
     return next(action);
