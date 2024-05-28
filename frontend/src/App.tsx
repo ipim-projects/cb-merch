@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
-import { useHapticFeedback, useShowPopup } from '@vkruglikov/react-telegram-web-app';
+import { useHapticFeedback } from '@vkruglikov/react-telegram-web-app';
 
 import '@xelene/tgui/dist/styles.css';
 import { AppRoot } from '@xelene/tgui';
@@ -28,7 +28,6 @@ const PaymentReturnPage = () => (
 );
 
 const App = () => {
-  const showPopup = useShowPopup();
   const [_impactOccurred, notificationOccurred, _selectionChanged] = useHapticFeedback();
   const [isInvalidVersion, setIsInvalidVersion] = useState(false);
 
@@ -37,7 +36,7 @@ const App = () => {
       if (!window.Telegram.WebApp.isVersionAtLeast('6.9')) {
         notificationOccurred('error');
         if (window.Telegram.WebApp.isVersionAtLeast('6.2')) {
-          showPopup({ message: 'Please update your Telegram app to the latest version to use this app.' });
+          window.Telegram.WebApp.showPopup({ message: 'Please update your Telegram app to the latest version to use this app.' });
         } else {
           console.log('the version is not supported');
           setIsInvalidVersion(true);

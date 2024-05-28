@@ -16,14 +16,14 @@ const baseQuery = fetchBaseQuery({
   // baseUrl: 'https://185.251.90.50/api/v1/',
   prepareHeaders: (headers) => {
     if (window.Telegram?.WebApp?.initData) {
-      console.log('initData', window.Telegram?.WebApp?.initData);
-      /*const initData = 'user=%7B%22id%22%3A1%2C%22first_name%22%3Anull%2C%22last_name%22%3Anull%2C%22username%22%3A%221%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Afalse%2C%22allows_write_to_pm%22%3Atrue%7D ' +
+      // console.log('initData', window.Telegram?.WebApp?.initData);
+      const initData = 'user=%7B%22id%22%3A1%2C%22first_name%22%3Anull%2C%22last_name%22%3Anull%2C%22username%22%3A%221%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Afalse%2C%22allows_write_to_pm%22%3Atrue%7D ' +
         '&chat_instance=-3788475317572404878 ' +
         '&chat_type=private ' +
         '&auth_date=1744722938 ' +
-        '&hash=3345d39cdbd768365ba9158adfd6280e67aa94e1c16cb9a84006ce93664e7910';*/
-      headers.set('Authorization', `tgm ${window.Telegram.WebApp.initData}`);
-      // headers.set('Authorization', `tgm ${initData}`);
+        '&hash=3345d39cdbd768365ba9158adfd6280e67aa94e1c16cb9a84006ce93664e7910';
+      // headers.set('Authorization', `tgm ${window.Telegram.WebApp.initData}`);
+      headers.set('Authorization', `tgm ${initData}`);
     } else {
       // для тестирования в браузере
       const initData = 'user=%7B%22id%22%3A1%2C%22first_name%22%3Anull%2C%22last_name%22%3Anull%2C%22username%22%3A%221%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Afalse%2C%22allows_write_to_pm%22%3Atrue%7D ' +

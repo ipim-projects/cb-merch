@@ -11,10 +11,10 @@ export const rtkQueryErrorLogger: Middleware =
       console.log(action);
       if (window.Telegram?.WebApp?.initData) {
         window.Telegram.WebApp.showPopup({
-          title: `Ошибка ${action.error.code}`,
+          title: `Ошибка ${(action.payload as { status: string }).status}`,
           message:
-            'data' in action.error
-              ? (action.error.data as { message: string }).message
+            action.payload && typeof action.payload === 'object' && 'data' in action.payload
+              ? (action.payload.data as { title: string }).title ?? action.payload.data
               : action.error.message ?? 'Неизвестная ошибка',
         });
       }

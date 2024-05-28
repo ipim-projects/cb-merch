@@ -17,7 +17,7 @@ import {
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
 import { difference, equals, isEmpty, isNotNil } from 'ramda';
-import { MainButton } from '@vkruglikov/react-telegram-web-app';
+import { MainButton, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
 
@@ -69,6 +69,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [saveWidgetAddressQueryTrigger] = useLazySaveWidgetAddressQuery();
 
   const navigate = useNavigate();
+  const showPopup = useShowPopup();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
   const buttonsDisabled = isLoading
@@ -79,8 +80,23 @@ const ShoppingCart: React.FunctionComponent = () => {
     || (cart?.items && isEmpty(cart?.items));
 
   useEffect(() => {
-    setDeliveryPrice(0);
-    setDeliveryPriceFoundOut(false);
+    if (
+      cart?.delivery.deliveryAddress.deliveryType
+      && deliveryType.length > 0
+      && cart?.delivery.deliveryAddress.deliveryType !== deliveryType[0].value
+    ) {
+      setDeliveryType(DeliveryOptions.filter(opt => opt.value === cart.delivery.deliveryAddress.deliveryType));
+    }
+    if (cart?.delivery.deliveryAddress) {
+      setAddress(deliveryAddressToString(cart.delivery.deliveryAddress));
+    }
+    if (cart?.delivery.price) {
+      setDeliveryPrice(cart.delivery.price);
+      setDeliveryPriceFoundOut(true);
+    }
+  }, [cart]);
+
+  useEffect(() => {
     if (deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value) {
       showBoxberryMap(boxberryCallback, cart?.totalPrice, cart?.totalWeight);
     }
@@ -89,6 +105,16 @@ const ShoppingCart: React.FunctionComponent = () => {
     }
   }, [deliveryType]);
 
+  const handleDeliveryTypeChange = (selected: MultiselectOption[]) => {
+    const isEqual = equals(selected, deliveryType);
+    if (!isEqual) {
+      setDeliveryType(difference(selected, deliveryType));
+      setAddress('');
+      setDeliveryPrice(0);
+      setDeliveryPriceFoundOut(false);
+    }
+  }
+
   const handlePlaceOrder = async () => {
     await createOrder(buyerInfo);
     if (isCreateOrderSuccess) setIsSnackbarShown(true);
@@ -96,39 +122,56 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   const handleCheckAddress = async () => {
     if (deliveryType.length !== 1) return;
+    if (isEmpty(address.trim())) {
+      console.log('Введите адрес');
+      await showPopup({ message: 'Введите адрес' });
+      return;
+    }
     const { data: checkedAddress } = await checkAddressQueryTrigger({
       deliveryType: deliveryType[0].value as DeliveryType,
       address
     });
-    // TODO: выдать ошибку, если не определился индекс
-    if (!checkedAddress?.zipCode) return;
+    if (!checkedAddress?.zipCode) {
+      await showPopup({ title: 'Ошибка', message: 'Адрес или индекс не найден' });
+      return;
+    }
     const { data: savedAddress } = await saveAddressQueryTrigger(checkedAddress);
-    if (!savedAddress) return;
+    if (!savedAddress) {
+      await showPopup({ title: 'Ошибка', message: 'Не удалось сохранить адрес' });
+      return;
+    }
     const { data: resultDeliveryPrice } = await getDeliveryPriceQueryTrigger(savedAddress.code);
-    if (!resultDeliveryPrice) return;
+    if (!resultDeliveryPrice) {
+      await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
+      return;
+    }
     setDeliveryPrice(resultDeliveryPrice.price);
     setDeliveryPriceFoundOut(true);
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
-    console.log('resultDeliveryPrice', resultDeliveryPrice);
   }
 
   const boxberryCallback = async (result: any) => {
     console.log('Выбрано отделение:', result);
     if (result.price) {
-      setDeliveryPrice(Number(result.price));
-      setDeliveryPriceFoundOut(true);
       // парсим адрес через вызов delivery/pochtaru/check/address
       const { data: checkedAddress } = await checkAddressQueryTrigger({
         deliveryType: DeliveryType.BOXBERRY_PVZ,
         address: result.address
       });
-      console.log('checkedAddress', checkedAddress);
-      if (!checkedAddress?.zipCode) return;
+      if (!checkedAddress?.zipCode) {
+        await showPopup({ title: 'Ошибка', message: 'Адрес или индекс не найден' });
+        return;
+      }
+      setDeliveryPrice(Number(result.price));
+      setDeliveryPriceFoundOut(true);
+      setAddress(deliveryAddressToString(checkedAddress));
       const pvzAddress: WidgetDeliveryPrice = {
         address: { ...checkedAddress, pvzCode: result.id, },
         price: result.price,
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);
+    } else {
+      await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
   }
 
@@ -137,8 +180,6 @@ const ShoppingCart: React.FunctionComponent = () => {
     if (result.cashOfDelivery) {
       // сумма в копейках
       const deliveryPrice = result.cashOfDelivery / 100;
-      setDeliveryPrice(deliveryPrice);
-      setDeliveryPriceFoundOut(true);
       const pvzAddress: WidgetDeliveryPrice = {
         address: {
           country: 'Россия',
@@ -151,8 +192,13 @@ const ShoppingCart: React.FunctionComponent = () => {
           deliveryType: DeliveryType.POST_PVZ,
         },
         price: deliveryPrice,
-      }
+      };
+      setDeliveryPrice(deliveryPrice);
+      setDeliveryPriceFoundOut(true);
+      setAddress(deliveryAddressToString(pvzAddress.address));
       await saveWidgetAddressQueryTrigger(pvzAddress);
+    } else {
+      await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
   }
 
@@ -167,8 +213,6 @@ const ShoppingCart: React.FunctionComponent = () => {
   if (isLoading) return (
     <Loading/>
   );
-
-  console.log('buyerInfo', buyerInfo);
 
   return (
     <>
@@ -253,11 +297,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             options={DeliveryOptions}
             value={deliveryType}
             closeDropdownAfterSelect={true}
-            onChange={selected => setDeliveryType(
-              equals(selected, deliveryType)
-                ? deliveryType
-                : difference(selected, deliveryType)
-            )}
+            onChange={handleDeliveryTypeChange}
           >
           </Multiselect>
           {deliveryType.length > 0
@@ -286,6 +326,14 @@ const ShoppingCart: React.FunctionComponent = () => {
             style={{ height: 500 }}
           ></div>
           }
+          {deliveryType.length > 0
+            && [DeliveryType.BOXBERRY_PVZ.toString(), DeliveryType.POST_PVZ.toString()].includes(deliveryType[0].value.toString())
+            && <Input
+              header='Адрес пункта выдачи заказов'
+              value={address}
+              disabled={true}
+            />
+          }
         </Section>
         <Section>
           <Info type="text">
@@ -295,7 +343,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             Стоимость доставки: {deliveryPrice} ₽
           </Info>
           <Info type="text">
-            Итого: {(cart?.totalPrice ?? 0) + deliveryPrice} ₽
+            Итого: {((cart?.totalPrice ?? 0) + deliveryPrice).toFixed(2)} ₽
           </Info>
         </Section>
         {deliveryPriceFoundOut && <>
