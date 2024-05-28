@@ -14,10 +14,16 @@ import OrderInfo from './pages/OrderInfo.tsx';
 
 const NoMatch = () => (
   <div>
-    <h2>Nothing to see here!</h2>
+    <h2>Страница не существует</h2>
     <p>
-      <Link to="/">Go to the home page</Link>
+      <Link to="/">На главную</Link>
     </p>
+  </div>
+);
+
+const PaymentReturnPage = () => (
+  <div>
+    <h2>Информацию о статусе оплаты можно посмотреть в магазине через телеграм-бот</h2>
   </div>
 );
 
@@ -73,6 +79,7 @@ const App = () => {
             </Route>
             <Route path="/product/:productCode" element={<ProductCard/>}/>
             <Route path="/order/:orderCode" element={<OrderInfo/>}/>
+            <Route path="/payment" element={<PaymentReturnPage/>}/>
             <Route path="*" element={<NoMatch/>}/>
           </Routes>
         </BrowserRouter>)}

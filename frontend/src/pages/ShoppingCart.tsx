@@ -16,7 +16,7 @@ import {
   Textarea
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
-import { difference, equals, isEmpty } from 'ramda';
+import { difference, equals, isEmpty, isNotNil } from 'ramda';
 import { MainButton } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
@@ -39,7 +39,7 @@ import showBoxberryMap from '../helpers/boxberry.js';
 import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
 import { DeliveryOptions, DeliveryType, WidgetDeliveryPrice } from '../types/delivery.ts';
-import { deliveryAddressToString } from '../helpers/delivery.ts';
+import { deliveryAddressToString, validateEmail } from '../helpers/delivery.ts';
 import { BuyerInfo } from '../types/orders.ts';
 import { productOptionsChips } from '../helpers/product.tsx';
 
@@ -91,7 +91,7 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   const handlePlaceOrder = async () => {
     await createOrder(buyerInfo);
-    if(isCreateOrderSuccess) setIsSnackbarShown(true);
+    if (isCreateOrderSuccess) setIsSnackbarShown(true);
   }
 
   const handleCheckAddress = async () => {
@@ -156,6 +156,14 @@ const ShoppingCart: React.FunctionComponent = () => {
     }
   }
 
+  const getWarningMessages = () => {
+    if (isEmpty(buyerInfo.buyerName)) return 'Введите имя и фамилию';
+    if (isEmpty(buyerInfo.buyerPhone)) return 'Введите телефон';
+    if (isEmpty(buyerInfo.buyerEmail)) return 'Введите e-mail';
+    if (!validateEmail(buyerInfo.buyerEmail)) return 'Введите корректный e-mail';
+    return null;
+  }
+
   if (isLoading) return (
     <Loading/>
   );
@@ -198,6 +206,8 @@ const ShoppingCart: React.FunctionComponent = () => {
                     onClick={async (event) => {
                       event.stopPropagation();
                       await decreaseOneItem(item.productVariant.code);
+                      setDeliveryPrice(0);
+                      setDeliveryPriceFoundOut(false);
                     }}
                   >
                     -
@@ -210,6 +220,8 @@ const ShoppingCart: React.FunctionComponent = () => {
                     onClick={async (event) => {
                       event.stopPropagation();
                       await addItemToCart(item.productVariant.code);
+                      setDeliveryPrice(0);
+                      setDeliveryPriceFoundOut(false);
                     }}
                   >
                     +
@@ -222,6 +234,8 @@ const ShoppingCart: React.FunctionComponent = () => {
                     onClick={async (event) => {
                       event.stopPropagation();
                       await removeItemFromCart(item.productVariant.code);
+                      setDeliveryPrice(0);
+                      setDeliveryPriceFoundOut(false);
                     }}
                   >
                     <IconTrashBin/>
@@ -284,58 +298,60 @@ const ShoppingCart: React.FunctionComponent = () => {
             Итого: {(cart?.totalPrice ?? 0) + deliveryPrice} ₽
           </Info>
         </Section>
-        {deliveryPriceFoundOut && <Section header="Оформление заказа">
-          <Input
-            header='Имя, фамилия'
-            placeholder='Введите имя и фамилию'
-            value={buyerInfo?.buyerName}
-            onChange={event =>
-              setBuyerInfo(prevState => ({
-                ...prevState, buyerName: event.target.value
-              }))
-            }
-          />
-          <Input
-            header='Телефон'
-            placeholder='Введите номер телефона'
-            value={buyerInfo?.buyerPhone}
-            onChange={event =>
-              setBuyerInfo(prevState => ({
-                ...prevState, buyerPhone: event.target.value
-              }))
-            }
-          />
-          <Input
-            header='Email'
-            placeholder='Введите адрес электронной почты'
-            value={buyerInfo?.buyerEmail}
-            onChange={event =>
-              setBuyerInfo(prevState => ({
-                ...prevState, buyerEmail: event.target.value
-              }))
-            }
-          />
-          <Textarea
-            header='Комментарий'
-            placeholder='Введите комментарий к заказу'
-            value={buyerInfo?.comment}
-            onChange={event =>
-              setBuyerInfo(prevState => ({
-                ...prevState, comment: event.target.value
-              }))
-            }
-          />
+        {deliveryPriceFoundOut && <>
+          <Section header="Оформление заказа" footer={getWarningMessages()}>
+            <Input
+              header='Имя, фамилия'
+              placeholder='Введите имя и фамилию'
+              value={buyerInfo?.buyerName}
+              onChange={event =>
+                setBuyerInfo(prevState => ({
+                  ...prevState, buyerName: event.target.value
+                }))
+              }
+            />
+            <Input
+              header='Телефон'
+              placeholder='Введите номер телефона'
+              value={buyerInfo?.buyerPhone}
+              onChange={event =>
+                setBuyerInfo(prevState => ({
+                  ...prevState, buyerPhone: event.target.value
+                }))
+              }
+            />
+            <Input
+              header='Email'
+              placeholder='Введите адрес электронной почты'
+              value={buyerInfo?.buyerEmail}
+              onChange={event =>
+                setBuyerInfo(prevState => ({
+                  ...prevState, buyerEmail: event.target.value
+                }))
+              }
+            />
+            <Textarea
+              header='Комментарий'
+              placeholder='Введите комментарий к заказу'
+              value={buyerInfo?.comment}
+              onChange={event =>
+                setBuyerInfo(prevState => ({
+                  ...prevState, comment: event.target.value
+                }))
+              }
+            />
+          </Section>
           {isTelegram ?
             <MainButton
               text={'Оформить заказ'}
-              disabled={buttonsDisabled}
+              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
               onClick={handlePlaceOrder}
             /> :
-            <Button disabled={buttonsDisabled} onClick={handlePlaceOrder}>
+            <Button disabled={buttonsDisabled || isNotNil(getWarningMessages())} onClick={handlePlaceOrder}>
               Оформить заказ
             </Button>
           }
-        </Section>
+        </>
         }
       </List>
     </>
