@@ -27,6 +27,7 @@ import {
   useDecreaseOneItemMutation,
   useGetShoppingCartQuery,
   useLazyCheckAddressQuery,
+  useLazyCheckBoxberryIndexQuery,
   useLazyGetDeliveryPriceQuery,
   useLazySaveAddressQuery,
   useLazySaveWidgetAddressQuery,
@@ -57,7 +58,7 @@ const ShoppingCart: React.FunctionComponent = () => {
     buyerEmail: '',
   });
 
-  const { data: cart, isLoading } = useGetShoppingCartQuery();
+  const { data: cart, isLoading, refetch: cartRefetch } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
   const [decreaseOneItem, { isLoading: isDecreasing }] = useDecreaseOneItemMutation();
   const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
@@ -67,6 +68,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [getDeliveryPriceQueryTrigger] = useLazyGetDeliveryPriceQuery();
   const [saveAddressQueryTrigger] = useLazySaveAddressQuery();
   const [saveWidgetAddressQueryTrigger] = useLazySaveWidgetAddressQuery();
+  const [checkBoxberryIndexQueryTrigger] = useLazyCheckBoxberryIndexQuery();
 
   const navigate = useNavigate();
   const showPopup = useShowPopup();
@@ -135,6 +137,11 @@ const ShoppingCart: React.FunctionComponent = () => {
       await showPopup({ title: 'Ошибка', message: 'Адрес или индекс не найден' });
       return;
     }
+    const { data: checkedBoxberryIndex } = await checkBoxberryIndexQueryTrigger({ zipCode: checkedAddress.zipCode });
+    if (isEmpty(checkedBoxberryIndex)) {
+      await showPopup({ message: 'На указанный адрес доставка невозможна' });
+      return;
+    }
     const { data: savedAddress } = await saveAddressQueryTrigger(checkedAddress);
     if (!savedAddress) {
       await showPopup({ title: 'Ошибка', message: 'Не удалось сохранить адрес' });
@@ -148,6 +155,7 @@ const ShoppingCart: React.FunctionComponent = () => {
     setDeliveryPrice(resultDeliveryPrice.price);
     setDeliveryPriceFoundOut(true);
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
+    cartRefetch();
   }
 
   const boxberryCallback = async (result: any) => {
@@ -170,6 +178,7 @@ const ShoppingCart: React.FunctionComponent = () => {
         price: result.price,
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);
+      cartRefetch();
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -197,6 +206,7 @@ const ShoppingCart: React.FunctionComponent = () => {
       setDeliveryPriceFoundOut(true);
       setAddress(deliveryAddressToString(pvzAddress.address));
       await saveWidgetAddressQueryTrigger(pvzAddress);
+      cartRefetch();
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -340,7 +350,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             Общий вес: {cart?.totalWeight} г
           </Info>
           <Info type="text">
-            Стоимость доставки: {deliveryPrice} ₽
+            Стоимость доставки: {deliveryPrice.toFixed(2)} ₽
           </Info>
           <Info type="text">
             Итого: {((cart?.totalPrice ?? 0) + deliveryPrice).toFixed(2)} ₽

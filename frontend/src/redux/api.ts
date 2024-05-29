@@ -5,9 +5,10 @@ import { Product, ProductDetails } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
 import { BuyerInfo, Order, OrderBaseInfo, Payment } from '../types/orders.ts';
 import {
+  CheckBoxberryIndexQueryArg,
   CheckDeliveryAddressQueryArg,
   DeliveryAddress,
-  DeliveryPrice,
+  DeliveryPrice, DeliveryType,
   WidgetDeliveryPrice
 } from '../types/delivery.ts';
 
@@ -120,6 +121,10 @@ export const api = createApi({
         method: 'POST',
       }),
     }),
+    checkBoxberryIndex: builder.query<Omit<DeliveryAddress, 'address' | 'pvzCode' | 'pvzName'>, CheckBoxberryIndexQueryArg>({
+      query: ({ deliveryType = DeliveryType.BOXBERRY_COURIER, zipCode }) =>
+        `delivery/boxberry/index?deliveryType=${deliveryType}&zipCode=${zipCode}`,
+    }),
     // Orders
     listOrders: builder.query<ListResponse<OrderBaseInfo>, ListRequestQueryArg>({
       query: ({ pageIndex = 1, pageSize = 30 }) =>
@@ -158,6 +163,7 @@ export const {
   useLazyGetDeliveryPriceQuery,
   useLazySaveAddressQuery,
   useLazySaveWidgetAddressQuery,
+  useLazyCheckBoxberryIndexQuery,
   useListOrdersQuery,
   useCreateOrderMutation,
   useGetOrderQuery,

@@ -1,4 +1,4 @@
-import { MultiselectOption } from "@xelene/tgui/dist/components/Form/Multiselect/types";
+import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
 
 export enum DeliveryType {
   BOXBERRY_PVZ = 'boxberryPvz',
@@ -40,4 +40,9 @@ export interface DeliveryPrice {
 export interface WidgetDeliveryPrice {
   address: Omit<DeliveryAddress, 'code'>,
   price: number,
+}
+
+export interface CheckBoxberryIndexQueryArg {
+  deliveryType?: DeliveryType,
+  zipCode: string,
 }
