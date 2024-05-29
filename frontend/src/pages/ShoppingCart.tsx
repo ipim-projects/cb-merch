@@ -83,16 +83,16 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (
-      cart?.delivery.deliveryAddress.deliveryType
+      cart?.delivery?.deliveryAddress?.deliveryType
       && deliveryType.length > 0
-      && cart?.delivery.deliveryAddress.deliveryType !== deliveryType[0].value
+      && cart.delivery.deliveryAddress.deliveryType !== deliveryType[0].value
     ) {
       setDeliveryType(DeliveryOptions.filter(opt => opt.value === cart.delivery.deliveryAddress.deliveryType));
     }
-    if (cart?.delivery.deliveryAddress) {
+    if (cart?.delivery?.deliveryAddress) {
       setAddress(deliveryAddressToString(cart.delivery.deliveryAddress));
     }
-    if (cart?.delivery.price) {
+    if (cart?.delivery?.price) {
       setDeliveryPrice(cart.delivery.price);
       setDeliveryPriceFoundOut(true);
     }
