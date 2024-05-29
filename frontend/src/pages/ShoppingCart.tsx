@@ -100,10 +100,10 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value) {
-      showBoxberryMap(boxberryCallback, cart?.totalPrice, cart?.totalWeight);
+      showBoxberryMap(boxberryCallback, cart?.productPrice, cart?.totalWeight);
     }
     if (deliveryType.length > 0 && DeliveryType.POST_PVZ === deliveryType[0].value) {
-      showPochtaMap(pochtaCallback, cart?.totalPrice, cart?.totalWeight);
+      showPochtaMap(pochtaCallback, cart?.productPrice, cart?.totalWeight);
     }
   }, [deliveryType]);
 
@@ -353,7 +353,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             Стоимость доставки: {deliveryPrice.toFixed(2)} ₽
           </Info>
           <Info type="text">
-            Итого: {((cart?.totalPrice ?? 0) + deliveryPrice).toFixed(2)} ₽
+            Итого: {((cart?.productPrice ?? 0) + deliveryPrice).toFixed(2)} ₽
           </Info>
         </Section>
         {deliveryPriceFoundOut && <>

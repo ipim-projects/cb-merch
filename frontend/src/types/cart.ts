@@ -10,6 +10,7 @@ export interface ShoppingCartItem {
 export interface ShoppingCartDetails {
   delivery: DeliveryPrice,
   totalPrice: number,
+  productPrice: number,
   totalWeight: number,
   items: ShoppingCartItem[],
 }

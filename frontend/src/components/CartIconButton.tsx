@@ -15,7 +15,7 @@ const CartIconButton: React.FunctionComponent = () => {
   return (
     <CardChip readOnly>
       <IconButtonRef disabled={isLoading} ref={ref} mode="plain" size="m" onClick={() => setTooltipShown(!tooltipShown)}>
-        {cartInfo?.productsCount && <AvatarBadge style={{right: -6}} type="number">{cartInfo.productsCount}</AvatarBadge>}
+        {cartInfo && <AvatarBadge style={{right: -6}} type="number">{cartInfo?.productsCount ?? 0}</AvatarBadge>}
         <IconCart/>
       </IconButtonRef>
       {tooltipShown && (
