@@ -52,17 +52,17 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [address, setAddress] = useState('');
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [deliveryPriceFoundOut, setDeliveryPriceFoundOut] = useState(false);
-  const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
-    buyerName: '',
-    buyerPhone: '',
-    buyerEmail: '',
-  });
+  const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({ buyerName: '', buyerPhone: '', buyerEmail: '' });
 
   const { data: cart, isLoading, refetch: cartRefetch } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
   const [decreaseOneItem, { isLoading: isDecreasing }] = useDecreaseOneItemMutation();
   const [removeItemFromCart, { isLoading: isRemovingFromCart }] = useRemoveItemFromCartMutation();
-  const [createOrder, { isLoading: isOrderCreating, isSuccess: isCreateOrderSuccess }] = useCreateOrderMutation();
+  const [createOrder, {
+    data: order,
+    isLoading: isOrderCreating,
+    isSuccess: isCreateOrderSuccess
+  }] = useCreateOrderMutation();
 
   const [checkAddressQueryTrigger] = useLazyCheckAddressQuery();
   const [getDeliveryPriceQueryTrigger] = useLazyGetDeliveryPriceQuery();
@@ -121,6 +121,8 @@ const ShoppingCart: React.FunctionComponent = () => {
     await createOrder(buyerInfo);
     if (isCreateOrderSuccess) setIsSnackbarShown(true);
   }
+
+  console.log('order', order);
 
   const handleCheckAddress = async () => {
     if (deliveryType.length !== 1) return;
@@ -227,17 +229,15 @@ const ShoppingCart: React.FunctionComponent = () => {
   return (
     <>
       <Headline style={{ padding: '0 24px' }}>Корзина</Headline>
-      {isSnackbarShown && (
+      {isSnackbarShown && order && (
         <Snackbar
           before={<Icon28Archive/>}
-          description="№ такой-то от такой-то даты"
+          description={`№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`}
           children="Заказ сформирован"
-          onClose={() => setIsSnackbarShown(false)}
-          after={(
-            <Snackbar.Button /*onClick={() => navigate(`/product/${item.product.code}`)}*/>
-              К заказу
-            </Snackbar.Button>
-          )}
+          onClose={() => {
+            setIsSnackbarShown(false);
+            navigate(`/order/${order?.code}`)
+          }}
         />
       )}
       <List style={{ paddingBottom: '84px' }}>
