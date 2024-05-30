@@ -107,6 +107,10 @@ const ShoppingCart: React.FunctionComponent = () => {
     }
   }, [deliveryType]);
 
+  useEffect(() => {
+    if (isCreateOrderSuccess) setIsSnackbarShown(true);
+  }, [isCreateOrderSuccess]);
+
   const handleDeliveryTypeChange = (selected: MultiselectOption[]) => {
     const isEqual = equals(selected, deliveryType);
     if (!isEqual) {
@@ -119,10 +123,7 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   const handlePlaceOrder = async () => {
     await createOrder(buyerInfo);
-    if (isCreateOrderSuccess) setIsSnackbarShown(true);
   }
-
-  console.log('order', order);
 
   const handleCheckAddress = async () => {
     if (deliveryType.length !== 1) return;
