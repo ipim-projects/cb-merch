@@ -108,7 +108,9 @@ const ShoppingCart: React.FunctionComponent = () => {
   }, [deliveryType]);
 
   useEffect(() => {
-    if (isCreateOrderSuccess) setIsSnackbarShown(true);
+    if (isCreateOrderSuccess) {
+      setIsSnackbarShown(true);
+    }
   }, [isCreateOrderSuccess]);
 
   const handleDeliveryTypeChange = (selected: MultiselectOption[]) => {
@@ -237,6 +239,7 @@ const ShoppingCart: React.FunctionComponent = () => {
           children="Заказ сформирован"
           onClose={() => {
             setIsSnackbarShown(false);
+            cartRefetch();
             navigate(`/order/${order?.code}`)
           }}
         />
