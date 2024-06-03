@@ -15,3 +15,9 @@ export const validateEmail = (email: string) => {
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
+
+export const validatePhone = (phone: string) => {
+  return String(phone)
+    .toLowerCase()
+    .match(/^\+?7-?([0-9]{3})\)?-?([0-9]{3})-?([0-9]{2})-?([0-9]{2})$/);
+};

@@ -40,7 +40,7 @@ import showBoxberryMap from '../helpers/boxberry.js';
 import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
 import { DeliveryOptions, DeliveryType, WidgetDeliveryPrice } from '../types/delivery.ts';
-import { deliveryAddressToString, validateEmail } from '../helpers/delivery.ts';
+import { deliveryAddressToString, validateEmail, validatePhone } from '../helpers/delivery.ts';
 import { BuyerInfo } from '../types/orders.ts';
 import { productOptionsChips } from '../helpers/product.tsx';
 
@@ -53,6 +53,9 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [deliveryPriceFoundOut, setDeliveryPriceFoundOut] = useState(false);
   const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({ buyerName: '', buyerPhone: '', buyerEmail: '' });
+  const [buyerNameInputStatus, setBuyerNameInputStatus] = useState<undefined | 'error'>(undefined);
+  const [buyerPhoneInputStatus, setBuyerPhoneInputStatus] = useState<undefined | 'error'>(undefined);
+  const [buyerEmailInputStatus, setBuyerEmailInputStatus] = useState<undefined | 'error'>(undefined);
 
   const { data: cart, isLoading, refetch: cartRefetch } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
@@ -124,13 +127,15 @@ const ShoppingCart: React.FunctionComponent = () => {
   }
 
   const handlePlaceOrder = async () => {
-    await createOrder(buyerInfo);
+    await createOrder({
+      ...buyerInfo,
+      buyerName: buyerInfo.buyerName.trim(),
+    });
   }
 
   const handleCheckAddress = async () => {
     if (deliveryType.length !== 1) return;
     if (isEmpty(address.trim())) {
-      console.log('Введите адрес');
       await showPopup({ message: 'Введите адрес' });
       return;
     }
@@ -218,10 +223,9 @@ const ShoppingCart: React.FunctionComponent = () => {
   }
 
   const getWarningMessages = () => {
-    if (isEmpty(buyerInfo.buyerName)) return 'Введите имя и фамилию';
-    if (isEmpty(buyerInfo.buyerPhone)) return 'Введите телефон';
-    if (isEmpty(buyerInfo.buyerEmail)) return 'Введите e-mail';
-    if (!validateEmail(buyerInfo.buyerEmail)) return 'Введите корректный e-mail';
+    if (isEmpty(buyerInfo.buyerName.trim())) return 'Введите имя и фамилию';
+    if (!validatePhone(buyerInfo.buyerPhone.trim())) return 'Введите номер телефона в формате +79123456789';
+    if (!validateEmail(buyerInfo.buyerEmail.trim())) return 'Введите корректный e-mail';
     return null;
   }
 
@@ -366,31 +370,37 @@ const ShoppingCart: React.FunctionComponent = () => {
               header='Имя, фамилия'
               placeholder='Введите имя и фамилию'
               value={buyerInfo?.buyerName}
-              onChange={event =>
+              status={buyerNameInputStatus}
+              onChange={event => {
                 setBuyerInfo(prevState => ({
                   ...prevState, buyerName: event.target.value
-                }))
-              }
+                }));
+                setBuyerNameInputStatus(isEmpty(event.target.value.trim()) ? 'error' : undefined);
+              }}
             />
             <Input
               header='Телефон'
               placeholder='Введите номер телефона'
               value={buyerInfo?.buyerPhone}
-              onChange={event =>
+              status={buyerPhoneInputStatus}
+              onChange={event => {
                 setBuyerInfo(prevState => ({
-                  ...prevState, buyerPhone: event.target.value
-                }))
-              }
+                  ...prevState, buyerPhone: event.target.value.trim()
+                }));
+                setBuyerPhoneInputStatus(!validatePhone(event.target.value.trim()) ? 'error' : undefined);
+              }}
             />
             <Input
               header='Email'
               placeholder='Введите адрес электронной почты'
               value={buyerInfo?.buyerEmail}
-              onChange={event =>
+              status={buyerEmailInputStatus}
+              onChange={event => {
                 setBuyerInfo(prevState => ({
-                  ...prevState, buyerEmail: event.target.value
-                }))
-              }
+                  ...prevState, buyerEmail: event.target.value.trim()
+                }));
+                setBuyerEmailInputStatus(!validateEmail(event.target.value.trim()) ? 'error' : undefined);
+              }}
             />
             <Textarea
               header='Комментарий'

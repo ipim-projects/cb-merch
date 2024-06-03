@@ -13,8 +13,7 @@ import {
 } from '../types/delivery.ts';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'https://test.store4merch.ru/api/v1/',
-  // baseUrl: 'https://185.251.90.50/api/v1/',
+  baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
   prepareHeaders: (headers) => {
     if (window.Telegram?.WebApp?.initData) {
       // console.log('initData', window.Telegram?.WebApp?.initData);
