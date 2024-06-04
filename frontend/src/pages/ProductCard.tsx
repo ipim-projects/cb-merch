@@ -46,18 +46,6 @@ const ProductCard: React.FunctionComponent = () => {
 
   return (
     <>
-      {isSnackbarShown && (
-        <Snackbar
-          description={`${product.name}`}
-          children="Товар добавлен в корзину"
-          onClose={() => setIsSnackbarShown(false)}
-          after={(
-            <Snackbar.Button onClick={() => navigate('/cart')}>
-              В корзину
-            </Snackbar.Button>
-          )}
-        />
-      )}
       {isTelegram && <BackButton onClick={() => navigate(-1)}/>}
       <List>
         <Section>
@@ -96,6 +84,18 @@ const ProductCard: React.FunctionComponent = () => {
           variants={product.variants}
           onOptionSelect={setSelectedVariant}
         />}
+        {isSnackbarShown && (
+          <Snackbar
+            description={`${product.name}`}
+            children="Товар добавлен в корзину"
+            onClose={() => setIsSnackbarShown(false)}
+            after={(
+              <Snackbar.Button onClick={() => navigate('/cart')}>
+                В корзину
+              </Snackbar.Button>
+            )}
+          />
+        )}
         {isTelegram ?
           <MainButton
             text={addButtonText}

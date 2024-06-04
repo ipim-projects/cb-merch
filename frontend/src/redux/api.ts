@@ -40,6 +40,7 @@ const baseQuery = fetchBaseQuery({
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
+  refetchOnReconnect: true,
   tagTypes: ['Basket'],
   endpoints: (builder) => ({
     // Products

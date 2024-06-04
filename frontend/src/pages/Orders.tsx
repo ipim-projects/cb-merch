@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sort } from 'ramda';
 import { Cell, Headline, Info, Section } from '@xelene/tgui';
 
 import { useListOrdersQuery } from '../redux/api.ts';
@@ -20,10 +19,7 @@ const Orders: React.FunctionComponent = () => {
     <>
       <Headline style={{ padding: '0 24px' }}>Мои заказы</Headline>
       <Section style={{ paddingBottom: '84px' }}>
-        {orders?.items && sort(
-          (a, b) => new Date(b.createdAtUtc).valueOf() - new Date(a.createdAtUtc).valueOf(),
-          orders.items
-        ).map((order, index) => (
+        {orders?.items && orders.items.map((order, index) => (
           <Cell
             key={index}
             // subtitle={product.description}

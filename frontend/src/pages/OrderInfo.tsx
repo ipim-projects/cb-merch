@@ -13,7 +13,8 @@ import { OrderStatus, OrderStatusType } from "../types/orders.ts";
 const OrderInfo: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const { orderCode } = useParams();
-  const { data: order, isLoading } = useGetOrderQuery(orderCode!);
+  // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка, а пользователь остаётся на странице заказа
+  const { data: order, isLoading } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 },);
   const { data: payment } = useGetPaymentQuery(orderCode!);
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;

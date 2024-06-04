@@ -12,6 +12,7 @@ import {
   Multiselect,
   Section,
   Snackbar,
+  Spinner,
   Tappable,
   Textarea
 } from '@xelene/tgui';
@@ -52,6 +53,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [address, setAddress] = useState('');
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [deliveryPriceFoundOut, setDeliveryPriceFoundOut] = useState(false);
+  const [isAddressChecking, setIsAddressChecking] = useState(false);
   const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({ buyerName: '', buyerPhone: '', buyerEmail: '' });
   const [buyerNameInputStatus, setBuyerNameInputStatus] = useState<undefined | 'error'>(undefined);
   const [buyerPhoneInputStatus, setBuyerPhoneInputStatus] = useState<undefined | 'error'>(undefined);
@@ -81,7 +83,9 @@ const ShoppingCart: React.FunctionComponent = () => {
     || isAddingToCart
     || isDecreasing
     || isRemovingFromCart
+    || isAddressChecking
     || isOrderCreating
+    || !!order
     || (cart?.items && isEmpty(cart?.items));
 
   useEffect(() => {
@@ -135,8 +139,10 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   const handleCheckAddress = async () => {
     if (deliveryType.length !== 1) return;
+    setIsAddressChecking(true);
     if (isEmpty(address.trim())) {
       await showPopup({ message: 'Введите адрес' });
+      setIsAddressChecking(false);
       return;
     }
     const { data: checkedAddress } = await checkAddressQueryTrigger({
@@ -145,27 +151,32 @@ const ShoppingCart: React.FunctionComponent = () => {
     });
     if (!checkedAddress?.zipCode) {
       await showPopup({ title: 'Ошибка', message: 'Адрес или индекс не найден' });
+      setIsAddressChecking(false);
       return;
     }
     const { data: checkedBoxberryIndex } = await checkBoxberryIndexQueryTrigger({ zipCode: checkedAddress.zipCode });
     if (isEmpty(checkedBoxberryIndex)) {
       await showPopup({ message: 'На указанный адрес доставка невозможна' });
+      setIsAddressChecking(false);
       return;
     }
     const { data: savedAddress } = await saveAddressQueryTrigger(checkedAddress);
     if (!savedAddress) {
       await showPopup({ title: 'Ошибка', message: 'Не удалось сохранить адрес' });
+      setIsAddressChecking(false);
       return;
     }
     const { data: resultDeliveryPrice } = await getDeliveryPriceQueryTrigger(savedAddress.code);
     if (!resultDeliveryPrice) {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
+      setIsAddressChecking(false);
       return;
     }
     setDeliveryPrice(resultDeliveryPrice.price);
     setDeliveryPriceFoundOut(true);
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
     cartRefetch();
+    setIsAddressChecking(false);
   }
 
   const boxberryCallback = async (result: any) => {
@@ -236,18 +247,6 @@ const ShoppingCart: React.FunctionComponent = () => {
   return (
     <>
       <Headline style={{ padding: '0 24px' }}>Корзина</Headline>
-      {isSnackbarShown && order && (
-        <Snackbar
-          before={<Icon28Archive/>}
-          description={`№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`}
-          children="Заказ сформирован"
-          onClose={() => {
-            setIsSnackbarShown(false);
-            cartRefetch();
-            navigate(`/order/${order?.code}`)
-          }}
-        />
-      )}
       <List style={{ paddingBottom: '84px' }}>
         <Section>
           {cart?.items.map((item, index) => (
@@ -324,6 +323,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             && <Input
               header='Адрес доставки'
               placeholder='Введите адрес доставки'
+              disabled={isAddressChecking}
               value={address}
               onChange={event => setAddress(event.target.value)}
               after={
@@ -331,7 +331,10 @@ const ShoppingCart: React.FunctionComponent = () => {
                   Component='div'
                   style={{ display: 'flex' }}
                   onClick={handleCheckAddress}>
-                  <IconSelectableBase/>
+                  {isAddressChecking ?
+                    <Spinner size="s"/> :
+                    <IconSelectableBase/>
+                  }
                 </Tappable>
               }/>
           }
@@ -413,13 +416,28 @@ const ShoppingCart: React.FunctionComponent = () => {
               }
             />
           </Section>
+          {isSnackbarShown && order && (
+            <Snackbar
+              before={<Icon28Archive/>}
+              description={`№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`}
+              children="Заказ сформирован"
+              onClose={() => {
+                setIsSnackbarShown(false);
+                cartRefetch();
+                navigate(`/order/${order?.code}`)
+              }}
+            />
+          )}
           {isTelegram ?
             <MainButton
               text={'Оформить заказ'}
               disabled={buttonsDisabled || isNotNil(getWarningMessages())}
               onClick={handlePlaceOrder}
             /> :
-            <Button disabled={buttonsDisabled || isNotNil(getWarningMessages())} onClick={handlePlaceOrder}>
+            <Button
+              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+              onClick={handlePlaceOrder}
+            >
               Оформить заказ
             </Button>
           }
