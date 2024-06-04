@@ -1,21 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Badge, Button, Cell, Info, List, Placeholder, Section } from '@xelene/tgui';
+import { Badge, Button, Cell, Info, List, Modal, Placeholder, Section, Textarea } from '@xelene/tgui';
+import { ModalHeader } from '@xelene/tgui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
+import { Icon28Close } from '@xelene/tgui/dist/icons/28/close';
+import { ModalClose } from '@xelene/tgui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 
-import { useGetOrderQuery, useGetPaymentQuery } from '../redux/api.ts';
+import { useGetOrderQuery, useGetPaymentQuery, useRejectOrderMutation } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 import { productOptionsChips } from '../helpers/product.tsx';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
 import { DeliveryOptions } from '../types/delivery.ts';
-import { OrderStatus, OrderStatusType } from "../types/orders.ts";
+import { OrderStatus, OrderStatusType } from '../types/orders.ts';
 
 const OrderInfo: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const { orderCode } = useParams();
+  const [comment, setComment] = useState('');
+  /*const [isModalOpen, setIsModalOpen] = useState(false);*/
   // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка, а пользователь остаётся на странице заказа
   const { data: order, isLoading } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 },);
   const { data: payment } = useGetPaymentQuery(orderCode!);
+  const [rejectOrder, { isLoading: isOrderRejecting }] = useRejectOrderMutation();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
 
@@ -35,6 +41,34 @@ const OrderInfo: React.FunctionComponent = () => {
         description={OrderStatus[order.status as OrderStatusType]}
       >
       </Placeholder>
+      {order.status === 'new' && <Modal
+        header={<ModalHeader
+          after={<ModalClose><Icon28Close style={{ color: 'var(--tgui--plain_foreground)' }}/></ModalClose>}
+        >
+          Отмена заказа
+        </ModalHeader>}
+        trigger={<Button mode="gray" size="s" disabled={isOrderRejecting}>Отменить заказ</Button>}
+        /*onOpenChange={setIsModalOpen}*/
+      >
+        <Placeholder
+          description="Вы уверены, что хотите отменить заказ?"
+          action={<Button
+            size="s"
+            stretched
+            disabled={isOrderRejecting}
+            onClick={() => rejectOrder({orderCode: order.code, comment: comment})}
+          >Подтвердить
+          </Button>}
+        >
+          <Textarea
+            header='Комментарий'
+            placeholder='Укажите причину отмены заказа'
+            value={comment}
+            onChange={event => setComment(event.target.value)}
+          />
+        </Placeholder>
+      </Modal>
+      }
       <List>
         <Section>
           {order.items.map((item, index) => (

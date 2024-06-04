@@ -56,6 +56,10 @@ export interface Payment {
   orderCode: string,
   totalPrice: number,
   paymentUrl: string,
-  paymentSystemCode: string
+  paymentSystemCode: string,
 }
 
+export interface OrderRejectQueryArg {
+  orderCode: string,
+  comment: string,
+}

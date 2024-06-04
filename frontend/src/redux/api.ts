@@ -3,12 +3,13 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ListRequestQueryArg, ListResponse } from '../types/common.ts';
 import { Product, ProductDetails } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
-import { BuyerInfo, Order, OrderBaseInfo, Payment } from '../types/orders.ts';
+import { BuyerInfo, Order, OrderBaseInfo, OrderRejectQueryArg, Payment } from '../types/orders.ts';
 import {
   CheckBoxberryIndexQueryArg,
   CheckDeliveryAddressQueryArg,
   DeliveryAddress,
-  DeliveryPrice, DeliveryType,
+  DeliveryPrice,
+  DeliveryType,
   WidgetDeliveryPrice
 } from '../types/delivery.ts';
 
@@ -41,7 +42,7 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery,
   refetchOnReconnect: true,
-  tagTypes: ['Basket'],
+  tagTypes: ['Basket', 'Order'],
   endpoints: (builder) => ({
     // Products
     listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg & Partial<Pick<Product, 'name'>>>({
@@ -129,6 +130,7 @@ export const api = createApi({
     listOrders: builder.query<ListResponse<OrderBaseInfo>, ListRequestQueryArg>({
       query: ({ pageIndex = 1, pageSize = 30 }) =>
         `order/list?pageIndex=${pageIndex}&pageSize=${pageSize}`,
+      providesTags: [{ type: 'Order', id: 'LIST' }],
     }),
     createOrder: builder.mutation<Order, BuyerInfo>({
       query: buyerInfo => ({
@@ -136,6 +138,7 @@ export const api = createApi({
         method: 'POST',
         body: buyerInfo,
       }),
+      invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
     getOrder: builder.query<Order, string>({
       query: code => `order/${code}`,
@@ -145,6 +148,14 @@ export const api = createApi({
         url: `payment/request?orderCode=${orderCode}`,
         method: 'POST',
       }),
+    }),
+    rejectOrder: builder.mutation<void, OrderRejectQueryArg>({
+      query: orderRejectQueryArg => ({
+        url: `order/reject/${orderRejectQueryArg.orderCode}`,
+        method: 'PUT',
+        body: { comment: orderRejectQueryArg.comment },
+      }),
+      invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
   }),
 });
@@ -168,4 +179,5 @@ export const {
   useCreateOrderMutation,
   useGetOrderQuery,
   useGetPaymentQuery,
+  useRejectOrderMutation,
 } = api;
