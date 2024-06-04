@@ -47,9 +47,15 @@ const OrderInfo: React.FunctionComponent = () => {
         >
           Отмена заказа
         </ModalHeader>}
-        trigger={<Button mode="gray" size="s" disabled={isOrderRejecting}>Отменить заказ</Button>}
+        trigger={<Button mode="gray" size="s" stretched disabled={isOrderRejecting}>Отменить заказ</Button>}
         /*onOpenChange={setIsModalOpen}*/
       >
+        <Textarea
+          header='Комментарий'
+          placeholder='Укажите причину отмены заказа'
+          value={comment}
+          onChange={event => setComment(event.target.value)}
+        />
         <Placeholder
           description="Вы уверены, что хотите отменить заказ?"
           action={<Button
@@ -60,12 +66,6 @@ const OrderInfo: React.FunctionComponent = () => {
           >Подтвердить
           </Button>}
         >
-          <Textarea
-            header='Комментарий'
-            placeholder='Укажите причину отмены заказа'
-            value={comment}
-            onChange={event => setComment(event.target.value)}
-          />
         </Placeholder>
       </Modal>
       }
