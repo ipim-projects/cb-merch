@@ -1,10 +1,12 @@
-import { ascend, equals, isEmpty, prop, sort } from 'ramda';
+import { ascend, compose, isEmpty, prop, sort, symmetricDifference } from 'ramda';
 import { Avatar, Chip } from '@xelene/tgui';
 
 import { ProductOption, ProductVariant } from '../types/products.ts';
 
+const equalIgnoreOrder = compose(isEmpty, symmetricDifference);
+
 export const getVariant = (variants: ProductVariant[], optionCodes: string[]): ProductVariant | undefined =>
-  variants.find(variant => equals(variant.productOptions.map(option => option.code), optionCodes));
+  variants.find(variant => equalIgnoreOrder(variant.productOptions.map(option => option.code), optionCodes));
 
 export const productOptionsChips = (options: ProductOption[]) => {
   if (isEmpty(options)) return null;
