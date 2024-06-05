@@ -80,7 +80,7 @@ const ProductCard: React.FunctionComponent = () => {
             </Accordion.Content>
           </Accordion>
         </Section>}
-        {!isEmpty(product.options) && product.variants.length > 1 && <Options
+        {!isEmpty(product.options) && product.variants.length > 0 && <Options
           options={product.options}
           variants={product.variants}
           onOptionSelect={setSelectedVariant}

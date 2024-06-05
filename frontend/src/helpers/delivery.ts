@@ -19,5 +19,5 @@ export const validateEmail = (email: string) => {
 export const validatePhone = (phone: string) => {
   return String(phone)
     .toLowerCase()
-    .match(/^\+?7-?([0-9]{3})\)?-?([0-9]{3})-?([0-9]{2})-?([0-9]{2})$/);
+    .match(/^\+?7[- ]?([0-9]{3})\)?[- ]?([0-9]{3})[- ]?([0-9]{2})[- ]?([0-9]{2})$/);
 };
