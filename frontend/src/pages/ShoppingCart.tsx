@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
@@ -22,6 +22,9 @@ import { difference, equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { MainButton, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
+import { ModalHeader } from '@xelene/tgui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
+import { ModalClose } from '@xelene/tgui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
+import { Icon28Close } from '@xelene/tgui/dist/icons/28/close';
 
 import {
   useAddItemToCartMutation,
@@ -45,7 +48,7 @@ import { DeliveryOptions, DeliveryType, WidgetDeliveryPrice } from '../types/del
 import { deliveryAddressToString, validateEmail, validatePhone } from '../helpers/delivery.ts';
 import { BuyerInfo } from '../types/orders.ts';
 import { productOptionsChips } from '../helpers/product.tsx';
-import { ModalHeader } from "@xelene/tgui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader";
+
 
 const ShoppingCart: React.FunctionComponent = () => {
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
@@ -90,6 +93,15 @@ const ShoppingCart: React.FunctionComponent = () => {
     || isOrderCreating
     || !!order
     || (cart?.items && isEmpty(cart?.items));
+
+  const divRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current) {
+      console.log('scroll');
+      divRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [deliveryPrice]);
 
   useEffect(() => {
     if (
@@ -208,7 +220,7 @@ const ShoppingCart: React.FunctionComponent = () => {
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
     cartRefetch();
     setIsAddressChecking(false);
-    setIsModalOpen(true);
+    // setIsModalOpen(true);
   }
 
   const boxberryCallback = async (result: any) => {
@@ -232,7 +244,7 @@ const ShoppingCart: React.FunctionComponent = () => {
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);
       cartRefetch();
-      setIsModalOpen(true);
+      // setIsModalOpen(true);
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -261,7 +273,7 @@ const ShoppingCart: React.FunctionComponent = () => {
       setAddress(deliveryAddressToString(pvzAddress.address));
       await saveWidgetAddressQueryTrigger(pvzAddress);
       cartRefetch();
-      setIsModalOpen(true);
+      // setIsModalOpen(true);
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -401,8 +413,14 @@ const ShoppingCart: React.FunctionComponent = () => {
             Итого: {((cart?.productPrice ?? 0) + deliveryPrice).toFixed(2)} ₽
           </Info>
         </Section>
+        <div ref={divRef}></div>
         {deliveryPriceFoundOut && <Modal
-          header={<ModalHeader>
+          header={<ModalHeader
+            after={<ModalClose><Icon28Close
+              style={{ color: 'var(--tgui--plain_foreground)' }}
+              onClick={() => setIsModalOpen(false)}
+            /></ModalClose>}
+          >
             Оформление заказа
           </ModalHeader>}
           trigger={undefined}

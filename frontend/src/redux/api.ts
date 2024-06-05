@@ -27,11 +27,7 @@ const baseQuery = fetchBaseQuery({
       // headers.set('Authorization', `tgm ${initData}`);
     } else {
       // для тестирования в браузере
-      const initData = 'user=%7B%22id%22%3A1%2C%22first_name%22%3Anull%2C%22last_name%22%3Anull%2C%22username%22%3A%221%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Afalse%2C%22allows_write_to_pm%22%3Atrue%7D ' +
-        '&chat_instance=-3788475317572404878 ' +
-        '&chat_type=private ' +
-        '&auth_date=1744722938 ' +
-        '&hash=3345d39cdbd768365ba9158adfd6280e67aa94e1c16cb9a84006ce93664e7910';
+      const initData = 'query_id=AAHvN3MPAAAAAO83cw8A4fET&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1717593572&hash=8a39ceaadec16da5bf7d47a21c9ff1a6c90355b72d358ab68b43fef84df43fab';
       headers.set('Authorization', `tgm ${initData}`);
     }
     return headers;
