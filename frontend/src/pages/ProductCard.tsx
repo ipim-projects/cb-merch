@@ -27,7 +27,8 @@ const ProductCard: React.FunctionComponent = () => {
   const isTelegram = !!window.Telegram?.WebApp?.initData;
 
   const handleAddToCart = async () => {
-    if (selectedVariant) await addItemToCart(selectedVariant.code);
+    if (!selectedVariant) return;
+    await addItemToCart(selectedVariant.code);
     setIsSnackbarShown(true);
   }
 
@@ -96,15 +97,18 @@ const ProductCard: React.FunctionComponent = () => {
             )}
           />
         )}
-        {isTelegram ?
-          <MainButton
-            text={addButtonText}
-            disabled={isAddingToCart || !selectedVariant}
-            onClick={handleAddToCart}
-          /> :
-          <Button disabled={isAddingToCart || !selectedVariant} onClick={handleAddToCart}>
-            {addButtonText}
-          </Button>
+        {!isAddingToCart && selectedVariant && <>
+          {isTelegram ?
+            <MainButton
+              text={addButtonText}
+              disabled={isAddingToCart || !selectedVariant}
+              onClick={handleAddToCart}
+            /> :
+            <Button disabled={isAddingToCart || !selectedVariant} onClick={handleAddToCart}>
+              {addButtonText}
+            </Button>
+          }
+        </>
         }
       </List>
     </>

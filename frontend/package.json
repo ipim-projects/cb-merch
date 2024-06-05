@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
-    "@vkruglikov/react-telegram-web-app": "^2.2.0",
+    "@vkruglikov/react-telegram-web-app": "^2.1.9",
     "@xelene/tgui": "^2.1.1",
     "axios": "^1.5.1",
     "date-fns": "^2.30.0",

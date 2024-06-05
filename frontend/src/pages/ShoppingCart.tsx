@@ -17,7 +17,7 @@ import {
   Textarea
 } from '@xelene/tgui';
 import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
-import { difference, equals, isEmpty, isNotNil } from 'ramda';
+import { difference, equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { MainButton, useShowPopup } from '@vkruglikov/react-telegram-web-app';
 import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
 import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
@@ -428,18 +428,21 @@ const ShoppingCart: React.FunctionComponent = () => {
               }}
             />
           )}
-          {isTelegram ?
-            <MainButton
-              text={'Оформить заказ'}
-              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
-              onClick={handlePlaceOrder}
-            /> :
-            <Button
-              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
-              onClick={handlePlaceOrder}
-            >
-              Оформить заказ
-            </Button>
+          {!buttonsDisabled && isNil(getWarningMessages()) && <>
+            {isTelegram ?
+              <MainButton
+                text={'Оформить заказ'}
+                disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+                onClick={handlePlaceOrder}
+              /> :
+              <Button
+                disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+                onClick={handlePlaceOrder}
+              >
+                Оформить заказ
+              </Button>
+            }
+          </>
           }
         </>
         }

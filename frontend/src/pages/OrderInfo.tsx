@@ -104,7 +104,7 @@ const OrderInfo: React.FunctionComponent = () => {
             Итого: {order.totalPrice ?? 0} ₽
           </Info>
         </Section>
-        {(order.status === 'new' || order.status === 'partialPaid') && payment?.paymentUrl && <Section>
+        {(order.status === 'new' || order.status === 'partialPaid') && payment?.paymentUrl && <>
           {isTelegram ?
             <MainButton
               text={'Перейти к оплате'}
@@ -117,7 +117,7 @@ const OrderInfo: React.FunctionComponent = () => {
               Перейти к оплате
             </Button>
           }
-        </Section>
+        </>
         }
       </List>
     </>
