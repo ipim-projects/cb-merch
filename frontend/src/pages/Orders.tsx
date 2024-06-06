@@ -9,7 +9,8 @@ import { OrderStatus, OrderStatusType } from '../types/orders.ts';
 
 const Orders: React.FunctionComponent = () => {
   const navigate = useNavigate();
-  const { data: orders, isLoading } = useListOrdersQuery({});
+  // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка
+  const { data: orders, isLoading } = useListOrdersQuery({}, { pollingInterval: 5000 });
 
   if (isLoading) return (
     <Loading/>

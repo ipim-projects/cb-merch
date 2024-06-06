@@ -149,20 +149,6 @@ const ShoppingCart: React.FunctionComponent = () => {
     }
   }, [isCreateOrderSuccess]);
 
-  /*const showMessage = async () => {
-    if (!order) return;
-    await showPopup({
-      title: 'Заказ сформирован',
-      message: `№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`,
-      buttons: [
-        {
-          id: 'okbtn',
-          type: 'ok',
-        },
-      ]
-    });
-  }*/
-
   const handleDeliveryTypeChange = (selected: MultiselectOption[]) => {
     const isEqual = equals(selected, deliveryType);
     if (!isEqual) {

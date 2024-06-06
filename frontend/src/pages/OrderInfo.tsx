@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Badge, Button, Cell, Info, List, Modal, Placeholder, Section, Textarea } from '@telegram-apps/telegram-ui';
-import { ModalHeader } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
+import {
+  ModalHeader
+} from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
 import { Icon28Close } from '@telegram-apps/telegram-ui/dist/icons/28/close';
 import { ModalClose } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
@@ -17,9 +19,9 @@ const OrderInfo: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const { orderCode } = useParams();
   const [comment, setComment] = useState('');
-  /*const [isModalOpen, setIsModalOpen] = useState(false);*/
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка, а пользователь остаётся на странице заказа
-  const { data: order, isLoading } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 },);
+  const { data: order, isLoading } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 });
   const { data: payment } = useGetPaymentQuery(orderCode!);
   const [rejectOrder, { isLoading: isOrderRejecting }] = useRejectOrderMutation();
 
@@ -41,33 +43,48 @@ const OrderInfo: React.FunctionComponent = () => {
         description={OrderStatus[order.status as OrderStatusType]}
       >
       </Placeholder>
-      {order.status === 'new' && <Modal
-        header={<ModalHeader
-          after={<ModalClose><Icon28Close style={{ color: 'var(--tgui--plain_foreground)' }}/></ModalClose>}
+      {order.status === 'new' && <>
+        <Button
+          mode="gray"
+          size="s"
+          stretched
+          disabled={isOrderRejecting}
+          onClick={() => setIsModalOpen(true)}
         >
-          Отмена заказа
-        </ModalHeader>}
-        trigger={<Button mode="gray" size="s" stretched disabled={isOrderRejecting}>Отменить заказ</Button>}
-        /*onOpenChange={setIsModalOpen}*/
-      >
-        <Textarea
-          header='Комментарий'
-          placeholder='Укажите причину отмены заказа'
-          value={comment}
-          onChange={event => setComment(event.target.value)}
-        />
-        <Placeholder
-          description="Вы уверены, что хотите отменить заказ?"
-          action={<Button
-            size="s"
-            stretched
-            disabled={isOrderRejecting}
-            onClick={() => rejectOrder({orderCode: order.code, comment: comment})}
-          >Подтвердить
-          </Button>}
+          Отменить заказ
+        </Button>
+        <Modal
+          header={<ModalHeader
+            after={<ModalClose><Icon28Close
+              style={{ color: 'var(--tgui--plain_foreground)' }}
+              onClick={() => setIsModalOpen(false)}
+            /></ModalClose>}
+          >
+            Отмена заказа
+          </ModalHeader>}
+          trigger={undefined}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
         >
-        </Placeholder>
-      </Modal>
+          <Textarea
+            header='Комментарий'
+            placeholder='Укажите причину отмены заказа'
+            value={comment}
+            onChange={event => setComment(event.target.value)}
+          />
+          <Placeholder
+            description="Вы уверены, что хотите отменить заказ?"
+            action={<Button
+              size="s"
+              stretched
+              disabled={isOrderRejecting}
+              onClick={() => rejectOrder({ orderCode: order.code, comment: comment })}
+            >Подтвердить
+            </Button>}
+          >
+          </Placeholder>
+        </Modal>
+      </>
       }
       <List>
         <Section>
@@ -104,7 +121,7 @@ const OrderInfo: React.FunctionComponent = () => {
             Итого: {order.totalPrice ?? 0} ₽
           </Info>
         </Section>
-        {(order.status === 'new' || order.status === 'partialPaid') && payment?.paymentUrl && <>
+        {(order.status === 'new' || order.status === 'partialPaid') && payment?.paymentUrl && !isModalOpen && <>
           {isTelegram ?
             <MainButton
               text={'Перейти к оплате'}
