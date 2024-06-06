@@ -1,5 +1,5 @@
 import React from 'react';
-import { Placeholder, Spinner } from '@xelene/tgui';
+import { Placeholder, Spinner } from '@telegram-apps/telegram-ui';
 
 const Loading: React.FunctionComponent = () => (
   <>

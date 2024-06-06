@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { FixedLayout, Tabbar } from '@xelene/tgui';
-import { Icon32ProfileColoredSquare } from '@xelene/tgui/dist/icons/32/profile_colored_square';
-import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
+import { FixedLayout, Tabbar } from '@telegram-apps/telegram-ui';
+import { Icon32ProfileColoredSquare } from '@telegram-apps/telegram-ui/dist/icons/32/profile_colored_square';
+import { Icon28Archive } from '@telegram-apps/telegram-ui/dist/icons/28/archive';
 
 import { IconCart } from '../icons/cart.tsx';
 

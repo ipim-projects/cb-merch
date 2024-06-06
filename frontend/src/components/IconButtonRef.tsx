@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
-import { IconButtonProps, Tappable } from '@xelene/tgui';
-import { classNames } from '@xelene/tgui/dist/helpers/classNames';
+import { IconButtonProps, Tappable } from '@telegram-apps/telegram-ui';
+import { classNames } from '@telegram-apps/telegram-ui/dist/helpers/classNames';
 
 import styles from './IconButtonRef.module.css';
 

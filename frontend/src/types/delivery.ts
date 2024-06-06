@@ -1,4 +1,4 @@
-import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
+import { MultiselectOption } from '@telegram-apps/telegram-ui/dist/components/Form/Multiselect/types';
 
 export enum DeliveryType {
   BOXBERRY_PVZ = 'boxberryPvz',

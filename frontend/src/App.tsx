@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import { useHapticFeedback } from '@vkruglikov/react-telegram-web-app';
 
-import '@xelene/tgui/dist/styles.css';
-import { AppRoot } from '@xelene/tgui';
+import '@telegram-apps/telegram-ui/dist/styles.css';
+import { AppRoot } from '@telegram-apps/telegram-ui';
 
 import Main from './pages/Main';
 import ProductCard from './pages/ProductCard';

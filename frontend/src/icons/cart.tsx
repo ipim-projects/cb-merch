@@ -1,4 +1,4 @@
-import { Icon } from '@xelene/tgui/dist/types/Icon';
+import { Icon } from '@telegram-apps/telegram-ui/dist/types/Icon';
 
 export const IconCart = ({ ...restProps }: Icon) => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...restProps}>

@@ -1,5 +1,5 @@
 import { ascend, compose, isEmpty, prop, sort, symmetricDifference } from 'ramda';
-import { Avatar, Chip } from '@xelene/tgui';
+import { Avatar, Chip } from '@telegram-apps/telegram-ui';
 
 import { ProductOption, ProductVariant } from '../types/products.ts';
 

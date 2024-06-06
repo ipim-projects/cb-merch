@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Avatar, Chip, Section } from '@xelene/tgui';
+import { Avatar, Chip, Section } from '@telegram-apps/telegram-ui';
 import { isNil, reject } from 'ramda';
 
 import { ProductOption, ProductVariant } from '../types/products.ts';

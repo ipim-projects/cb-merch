@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Badge, Button, Cell, Info, List, Modal, Placeholder, Section, Textarea } from '@xelene/tgui';
-import { ModalHeader } from '@xelene/tgui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
-import { Icon28Close } from '@xelene/tgui/dist/icons/28/close';
-import { ModalClose } from '@xelene/tgui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
+import { Badge, Button, Cell, Info, List, Modal, Placeholder, Section, Textarea } from '@telegram-apps/telegram-ui';
+import { ModalHeader } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
+import { Icon28Close } from '@telegram-apps/telegram-ui/dist/icons/28/close';
+import { ModalClose } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 
 import { useGetOrderQuery, useGetPaymentQuery, useRejectOrderMutation } from '../redux/api.ts';

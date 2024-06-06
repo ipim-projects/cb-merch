@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AvatarBadge } from '@xelene/tgui/dist/components/Blocks/Avatar/components/AvatarBadge/AvatarBadge';
-import { CardChip } from '@xelene/tgui/dist/components/Blocks/Card/components/CardChip/CardChip';
+import { AvatarBadge } from '@telegram-apps/telegram-ui/dist/components/Blocks/Avatar/components/AvatarBadge/AvatarBadge';
+import { CardChip } from '@telegram-apps/telegram-ui/dist/components/Blocks/Card/components/CardChip/CardChip';
 
 import { useGetShoppingCartInfoQuery } from '../redux/api.ts';
 import IconButtonRef from '../components/IconButtonRef.tsx';

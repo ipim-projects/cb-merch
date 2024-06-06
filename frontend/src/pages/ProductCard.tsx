@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Accordion, Button, Info, List, Placeholder, Section, Snackbar } from '@xelene/tgui';
+import { Accordion, Button, Info, List, Placeholder, Section, Snackbar } from '@telegram-apps/telegram-ui';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 import { isEmpty } from 'ramda';
 

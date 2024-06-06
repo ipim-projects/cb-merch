@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cell, Headline, Info, Section } from '@xelene/tgui';
+import { Cell, Headline, Info, Section } from '@telegram-apps/telegram-ui';
 
 import { useListOrdersQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';

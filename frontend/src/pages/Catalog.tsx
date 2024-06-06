@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cell, Headline, Image, Info, Input, Section, Tappable } from '@xelene/tgui';
-import { Icon24Close } from '@xelene/tgui/dist/icons/24/close';
+import { Cell, Headline, Image, Info, Input, Section, Tappable } from '@telegram-apps/telegram-ui';
+import { Icon24Close } from '@telegram-apps/telegram-ui/dist/icons/24/close';
 
 import { useListProductsQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';

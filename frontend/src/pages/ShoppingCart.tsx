@@ -15,12 +15,12 @@ import {
   Spinner,
   Tappable,
   Textarea
-} from '@xelene/tgui';
-import { MultiselectOption } from '@xelene/tgui/dist/components/Form/Multiselect/types';
+} from '@telegram-apps/telegram-ui';
+import { MultiselectOption } from '@telegram-apps/telegram-ui/dist/components/Form/Multiselect/types';
 import { difference, equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { MainButton, useShowPopup } from '@vkruglikov/react-telegram-web-app';
-import { Icon28Archive } from '@xelene/tgui/dist/icons/28/archive';
-import { IconSelectableBase } from '@xelene/tgui/dist/components/Form/Selectable/icons/selectable_base';
+import { Icon28Archive } from '@telegram-apps/telegram-ui/dist/icons/28/archive';
+import { IconSelectableBase } from '@telegram-apps/telegram-ui/dist/components/Form/Selectable/icons/selectable_base';
 
 import {
   useAddItemToCartMutation,
