@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
@@ -9,6 +9,7 @@ import {
   Info,
   Input,
   List,
+  Modal,
   Multiselect,
   Section,
   Snackbar,
@@ -19,6 +20,9 @@ import {
 import { MultiselectOption } from '@telegram-apps/telegram-ui/dist/components/Form/Multiselect/types';
 import { difference, equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { MainButton, useShowPopup } from '@vkruglikov/react-telegram-web-app';
+import { ModalHeader } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
+import { ModalClose } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
+import { Icon28Close } from '@telegram-apps/telegram-ui/dist/icons/28/close';
 import { Icon28Archive } from '@telegram-apps/telegram-ui/dist/icons/28/archive';
 import { IconSelectableBase } from '@telegram-apps/telegram-ui/dist/components/Form/Selectable/icons/selectable_base';
 
@@ -45,6 +49,7 @@ import { deliveryAddressToString, validateEmail, validatePhone } from '../helper
 import { BuyerInfo } from '../types/orders.ts';
 import { productOptionsChips } from '../helpers/product.tsx';
 
+
 const ShoppingCart: React.FunctionComponent = () => {
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
   const [deliveryType, setDeliveryType] = useState<MultiselectOption[]>(
@@ -58,6 +63,7 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [buyerNameInputStatus, setBuyerNameInputStatus] = useState<undefined | 'error'>(undefined);
   const [buyerPhoneInputStatus, setBuyerPhoneInputStatus] = useState<undefined | 'error'>(undefined);
   const [buyerEmailInputStatus, setBuyerEmailInputStatus] = useState<undefined | 'error'>(undefined);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: cart, isLoading, refetch: cartRefetch } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
@@ -88,6 +94,15 @@ const ShoppingCart: React.FunctionComponent = () => {
     || !!order
     || (cart?.items && isEmpty(cart?.items));
 
+  const divRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current) {
+      console.log('scroll');
+      divRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [deliveryPrice]);
+
   useEffect(() => {
     if (
       cart?.delivery?.deliveryAddress?.deliveryType
@@ -115,10 +130,38 @@ const ShoppingCart: React.FunctionComponent = () => {
   }, [deliveryType]);
 
   useEffect(() => {
-    if (isCreateOrderSuccess) {
-      setIsSnackbarShown(true);
+    if (isCreateOrderSuccess && order) {
+      // setIsSnackbarShown(true);
+      showPopup({
+        title: 'Заказ сформирован',
+        message: `№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`,
+        buttons: [
+          {
+            id: 'okbtn',
+            type: 'ok',
+          },
+        ]
+      }).then((buttonId) => {
+        console.log(buttonId);
+        cartRefetch();
+        navigate(`/order/${order?.code}`);
+      })
     }
   }, [isCreateOrderSuccess]);
+
+  /*const showMessage = async () => {
+    if (!order) return;
+    await showPopup({
+      title: 'Заказ сформирован',
+      message: `№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`,
+      buttons: [
+        {
+          id: 'okbtn',
+          type: 'ok',
+        },
+      ]
+    });
+  }*/
 
   const handleDeliveryTypeChange = (selected: MultiselectOption[]) => {
     const isEqual = equals(selected, deliveryType);
@@ -177,6 +220,7 @@ const ShoppingCart: React.FunctionComponent = () => {
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
     cartRefetch();
     setIsAddressChecking(false);
+    // setIsModalOpen(true);
   }
 
   const boxberryCallback = async (result: any) => {
@@ -200,6 +244,7 @@ const ShoppingCart: React.FunctionComponent = () => {
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);
       cartRefetch();
+      // setIsModalOpen(true);
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -228,6 +273,7 @@ const ShoppingCart: React.FunctionComponent = () => {
       setAddress(deliveryAddressToString(pvzAddress.address));
       await saveWidgetAddressQueryTrigger(pvzAddress);
       cartRefetch();
+      // setIsModalOpen(true);
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -367,7 +413,20 @@ const ShoppingCart: React.FunctionComponent = () => {
             Итого: {((cart?.productPrice ?? 0) + deliveryPrice).toFixed(2)} ₽
           </Info>
         </Section>
-        {deliveryPriceFoundOut && <>
+        <div ref={divRef}></div>
+        {deliveryPriceFoundOut && <Modal
+          header={<ModalHeader
+            after={<ModalClose><Icon28Close
+              style={{ color: 'var(--tgui--plain_foreground)' }}
+              onClick={() => setIsModalOpen(false)}
+            /></ModalClose>}
+          >
+            Оформление заказа
+          </ModalHeader>}
+          trigger={undefined}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        >
           <Section header="Оформление заказа" footer={getWarningMessages()}>
             <Input
               header='Имя, фамилия'
@@ -416,33 +475,47 @@ const ShoppingCart: React.FunctionComponent = () => {
               }
             />
           </Section>
-          {isSnackbarShown && order && (
-            <Snackbar
-              before={<Icon28Archive/>}
-              description={`№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`}
-              children="Заказ сформирован"
-              onClose={() => {
-                setIsSnackbarShown(false);
-                cartRefetch();
-                navigate(`/order/${order?.code}`)
-              }}
-            />
-          )}
-          {!buttonsDisabled && isNil(getWarningMessages()) && <>
-            {isTelegram ?
-              <MainButton
-                text={'Оформить заказ'}
-                disabled={buttonsDisabled || isNotNil(getWarningMessages())}
-                onClick={handlePlaceOrder}
-              /> :
-              <Button
-                disabled={buttonsDisabled || isNotNil(getWarningMessages())}
-                onClick={handlePlaceOrder}
-              >
-                Оформить заказ
-              </Button>
-            }
-          </>
+        </Modal>
+        }
+        {isSnackbarShown && order && (
+          <Snackbar
+            before={<Icon28Archive/>}
+            description={`№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`}
+            children="Заказ сформирован"
+            onClose={() => {
+              setIsSnackbarShown(false);
+              cartRefetch();
+              navigate(`/order/${order?.code}`)
+            }}
+          />
+        )}
+        {deliveryPriceFoundOut && !isModalOpen && <>
+          {isTelegram ?
+            <MainButton
+              text={'Перейти к оформлению'}
+              onClick={() => setIsModalOpen(true)}
+            /> :
+            <Button
+              onClick={() => setIsModalOpen(true)}
+            >
+              Перейти к оформлению
+            </Button>
+          }
+        </>
+        }
+        {!buttonsDisabled && isNil(getWarningMessages()) && isModalOpen && <>
+          {isTelegram ?
+            <MainButton
+              text={'Оформить заказ'}
+              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+              onClick={handlePlaceOrder}
+            /> :
+            <Button
+              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+              onClick={handlePlaceOrder}
+            >
+              Оформить заказ
+            </Button>
           }
         </>
         }
