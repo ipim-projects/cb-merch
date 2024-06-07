@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Badge, Button, Cell, Info, List, Modal, Placeholder, Section, Textarea } from '@telegram-apps/telegram-ui';
 import {
@@ -21,11 +21,18 @@ const OrderInfo: React.FunctionComponent = () => {
   const [comment, setComment] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка, а пользователь остаётся на странице заказа
-  const { data: order, isLoading } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 });
+  const { data: order, isLoading, refetch } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 });
   const { data: payment } = useGetPaymentQuery(orderCode!);
-  const [rejectOrder, { isLoading: isOrderRejecting }] = useRejectOrderMutation();
+  const [rejectOrder, { isLoading: isOrderRejecting, isSuccess: isOrderRejectSuccess }] = useRejectOrderMutation();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
+
+  useEffect(() => {
+    if (isOrderRejectSuccess) {
+      setIsModalOpen(false);
+      refetch();
+    }
+  }, [isOrderRejectSuccess]);
 
   if (isLoading || !order) return (
     <Loading/>
