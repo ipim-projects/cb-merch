@@ -14,18 +14,14 @@ import {
 } from '../types/delivery.ts';
 import { User } from '../types/user.ts';
 
+export const PAGE_SIZE_DEFAULT = 25;
+
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
   prepareHeaders: (headers) => {
     if (window.Telegram?.WebApp?.initData) {
       console.log('initData', window.Telegram?.WebApp?.initData);
-      /*const initData = 'user=%7B%22id%22%3A1%2C%22first_name%22%3Anull%2C%22last_name%22%3Anull%2C%22username%22%3A%221%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Afalse%2C%22allows_write_to_pm%22%3Atrue%7D ' +
-        '&chat_instance=-3788475317572404878 ' +
-        '&chat_type=private ' +
-        '&auth_date=1744722938 ' +
-        '&hash=3345d39cdbd768365ba9158adfd6280e67aa94e1c16cb9a84006ce93664e7910';*/
       headers.set('Authorization', `tgm ${window.Telegram.WebApp.initData}`);
-      // headers.set('Authorization', `tgm ${initData}`);
     } else {
       // для тестирования в браузере
       const initData = 'query_id=AAHvN3MPAAAAAO83cw9g8AEc&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1718781739&hash=9b3acdb939df7ac0978965f328f447610785def4f3ea8462acf8ba7cc370e435';
@@ -45,7 +41,7 @@ export const api = createApi({
     listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg & Partial<Pick<Product, 'name'>>>({
       query: ({
                 pageIndex = 1,
-                pageSize = 30,
+                pageSize = PAGE_SIZE_DEFAULT,
                 name = ''
               }) => `product/list?pageIndex=${pageIndex}&pageSize=${pageSize}&name=${name}`,
     }),
@@ -125,7 +121,7 @@ export const api = createApi({
     }),
     // Orders
     listOrders: builder.query<ListResponse<OrderBaseInfo>, ListRequestQueryArg>({
-      query: ({ pageIndex = 1, pageSize = 30 }) =>
+      query: ({ pageIndex = 1, pageSize = PAGE_SIZE_DEFAULT }) =>
         `order/list?pageIndex=${pageIndex}&pageSize=${pageSize}`,
       providesTags: [{ type: 'Order', id: 'LIST' }],
     }),

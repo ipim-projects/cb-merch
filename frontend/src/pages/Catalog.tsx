@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cell, Headline, Image, Info, Input, Section, Tappable } from '@telegram-apps/telegram-ui';
+import { Cell, Headline, Image, Info, Input, Pagination, Section, Tappable } from '@telegram-apps/telegram-ui';
 import { Icon24Close } from '@telegram-apps/telegram-ui/dist/icons/24/close';
 
-import { useListProductsQuery } from '../redux/api.ts';
+import { PAGE_SIZE_DEFAULT, useListProductsQuery } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 
 const Catalog: React.FunctionComponent = () => {
-  const [search, setSearch] = useState('');
-
   const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: products, isLoading } = useListProductsQuery({name: search});
+  const { data: products, isLoading } = useListProductsQuery({ pageIndex: currentPage, name: search });
 
   if (isLoading) return (
     <Loading/>
@@ -48,6 +48,15 @@ const Catalog: React.FunctionComponent = () => {
             {product.name}
           </Cell>
         ))}
+        {!!products && (products.totalCount ?? 0) > 25 && <Section.Footer centered>
+          <Pagination
+            count={Math.ceil(products.totalCount / PAGE_SIZE_DEFAULT)}
+            onChange={(_, page: number) => {
+              setCurrentPage(page);
+            }}
+          />
+        </Section.Footer>
+        }
       </Section>
     </>
   )
