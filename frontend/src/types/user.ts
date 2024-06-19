@@ -5,6 +5,6 @@ export interface User {
   name: string,
   telegramNickName: string,
   telegramId: string,
-  role: string,
+  role: 'guest' | 'employee' | 'operator' | 'administrator',
   isBlocked: boolean,
 }

@@ -12,6 +12,7 @@ import {
   DeliveryType,
   WidgetDeliveryPrice
 } from '../types/delivery.ts';
+import { User } from '../types/user.ts';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
@@ -153,6 +154,10 @@ export const api = createApi({
       }),
       invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
+    // User
+    getCurrentUser: builder.query<User, void>({
+      query: () => 'user/current',
+    }),
   }),
 });
 
@@ -176,4 +181,5 @@ export const {
   useGetOrderQuery,
   useGetPaymentQuery,
   useRejectOrderMutation,
+  useGetCurrentUserQuery,
 } = api;

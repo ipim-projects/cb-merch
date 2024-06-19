@@ -8,12 +8,28 @@ import { Icon28Close } from '@telegram-apps/telegram-ui/dist/icons/28/close';
 import { ModalClose } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 
-import { useGetOrderQuery, useGetPaymentQuery, useRejectOrderMutation } from '../redux/api.ts';
+import { useGetCurrentUserQuery, useGetOrderQuery, useGetPaymentQuery, useRejectOrderMutation } from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
 import { productOptionsChips } from '../helpers/product.tsx';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
 import { DeliveryOptions } from '../types/delivery.ts';
-import { OrderStatus, OrderStatusType } from '../types/orders.ts';
+import { Order, OrderStatus, OrderStatusType } from '../types/orders.ts';
+import { User } from '../types/user.ts';
+
+const canOrderBePaid = (order: Order | undefined, user: User | undefined) =>
+  !!order && ['new', 'partialPaid'].includes(order.status)
+  && !!user && user.code === order?.user.code;
+
+const canOrderBeRejected = (order: Order | undefined, user: User | undefined) => {
+  if (!user || !order) return false;
+  if (['operator', 'administrator'].includes(user.role)) {
+    // оператор и администратор могут отменить любой заказ
+    return ['new', 'partialPaid', 'paid'].includes(order.status);
+  } else {
+    // обычный пользователь может отменить только свой "новый" заказ
+    return order.status === 'new' && user.code === order?.user.code;
+  }
+}
 
 const OrderInfo: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -22,7 +38,8 @@ const OrderInfo: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка, а пользователь остаётся на странице заказа
   const { data: order, isLoading, refetch } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 });
-  const { data: payment } = useGetPaymentQuery(orderCode!);
+  const { data: user } = useGetCurrentUserQuery();
+  const { data: payment } = useGetPaymentQuery(orderCode!, { skip: !canOrderBePaid(order, user) });
   const [rejectOrder, { isLoading: isOrderRejecting, isSuccess: isOrderRejectSuccess }] = useRejectOrderMutation();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
@@ -50,7 +67,7 @@ const OrderInfo: React.FunctionComponent = () => {
         description={OrderStatus[order.status as OrderStatusType]}
       >
       </Placeholder>
-      {order.status === 'new' && <>
+      {canOrderBeRejected(order, user) && <>
         <Button
           mode="gray"
           size="s"
@@ -128,7 +145,7 @@ const OrderInfo: React.FunctionComponent = () => {
             Итого: {order.totalPrice ?? 0} ₽
           </Info>
         </Section>
-        {(order.status === 'new' || order.status === 'partialPaid') && payment?.paymentUrl && !isModalOpen && <>
+        {canOrderBePaid(order, user) && payment?.paymentUrl && !isModalOpen && <>
           {isTelegram ?
             <MainButton
               text={'Перейти к оплате'}
