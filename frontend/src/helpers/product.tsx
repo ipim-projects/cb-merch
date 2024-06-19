@@ -3,6 +3,8 @@ import { Avatar, Chip } from '@telegram-apps/telegram-ui';
 
 import { ProductOption, ProductVariant } from '../types/products.ts';
 
+import styles from './product.module.css';
+
 const equalIgnoreOrder = compose(isEmpty, symmetricDifference);
 
 export const getVariant = (variants: ProductVariant[], optionCodes: string[]): ProductVariant | undefined =>
@@ -12,8 +14,9 @@ export const productOptionsChips = (options: ProductOption[]) => {
   if (isEmpty(options)) return null;
   const optionChips = sort(ascend(prop('type')), options).map((option, index) => {
     if (option.type === 'color') return <Chip
+      className={styles.smallchip}
       key={index}
-      mode="elevated"
+      mode="outline"
       before={
         <Avatar
           size={28}
@@ -21,11 +24,11 @@ export const productOptionsChips = (options: ProductOption[]) => {
         />
       }
     >
-      {option.name}
     </Chip>;
     if (option.type === 'size') return <Chip
+      className={styles.smallchip}
       key={index}
-      mode="elevated"
+      mode="outline"
     >
       {option.value}
     </Chip>
@@ -34,8 +37,9 @@ export const productOptionsChips = (options: ProductOption[]) => {
   return (
     <div
       style={{
+        // display: 'inline-grid',
         display: 'flex',
-        gap: 16
+        gap: 8
       }}
     >
       {optionChips}

@@ -283,16 +283,14 @@ const ShoppingCart: React.FunctionComponent = () => {
         <Section>
           {cart?.items.map((item, index) => (
             <Cell
+              multiline={true}
               key={index}
-              subtitle={item.product.description}
+              subtitle={<span style={{ whiteSpace: 'normal' }}>{item.product.description}</span>}
               description={productOptionsChips(item.productVariant.productOptions)}
               onClick={() => navigate(`/product/${item.product.code}`)}
               after={
                 <List>
-                  <Info type="text" style={{ marginRight: '16px' }}>
-                    {item.productVariant.price * item.count} ₽
-                  </Info>
-                  {item.product.name !== 'Фулфилмент' && <Info type="text">
+                  {item.product.name !== 'Фулфилмент' && <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                     <IconButton
                       mode="plain"
                       size="s"
@@ -321,7 +319,7 @@ const ShoppingCart: React.FunctionComponent = () => {
                       <IconAddCircle/>
                     </IconButton>
                     <IconButton
-                      style={{ marginLeft: '16px' }}
+                      // style={{ marginLeft: '16px' }}
                       mode="plain"
                       size="s"
                       disabled={buttonsDisabled}
@@ -334,8 +332,11 @@ const ShoppingCart: React.FunctionComponent = () => {
                     >
                       <IconTrashBin/>
                     </IconButton>
-                  </Info>
+                  </div>
                   }
+                  <Info type="text">
+                    <span style={{ whiteSpace: 'nowrap' }}>{item.productVariant.price * item.count} ₽</span>
+                  </Info>
                 </List>
               }
             >

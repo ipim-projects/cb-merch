@@ -37,12 +37,15 @@ const Catalog: React.FunctionComponent = () => {
         {products?.items.map((product, index) => (
           <Cell
             key={index}
-            subtitle={product.description}
+            subtitle={<span style={{ whiteSpace: 'normal' }}>{product.description}</span>}
             before={product.smallFile?.content ? <Image
               size={48}
               src={'data:image/jpeg;base64,' + product.smallFile.content}
             /> : null}
-            after={<Info type="text">от {product.price} ₽</Info>}
+            after={<Info type="text">
+              <span style={{ whiteSpace: 'nowrap' }}>от {product.price} ₽</span>
+            </Info>
+            }
             onClick={() => navigate(`/product/${product.code}`)}
           >
             {product.name}
