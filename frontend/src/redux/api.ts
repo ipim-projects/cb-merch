@@ -17,7 +17,7 @@ const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,
   prepareHeaders: (headers) => {
     if (window.Telegram?.WebApp?.initData) {
-      // console.log('initData', window.Telegram?.WebApp?.initData);
+      console.log('initData', window.Telegram?.WebApp?.initData);
       /*const initData = 'user=%7B%22id%22%3A1%2C%22first_name%22%3Anull%2C%22last_name%22%3Anull%2C%22username%22%3A%221%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Afalse%2C%22allows_write_to_pm%22%3Atrue%7D ' +
         '&chat_instance=-3788475317572404878 ' +
         '&chat_type=private ' +
@@ -27,7 +27,7 @@ const baseQuery = fetchBaseQuery({
       // headers.set('Authorization', `tgm ${initData}`);
     } else {
       // для тестирования в браузере
-      const initData = 'query_id=AAHvN3MPAAAAAO83cw8A4fET&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1717593572&hash=8a39ceaadec16da5bf7d47a21c9ff1a6c90355b72d358ab68b43fef84df43fab';
+      const initData = 'query_id=AAHvN3MPAAAAAO83cw9g8AEc&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1718781739&hash=9b3acdb939df7ac0978965f328f447610785def4f3ea8462acf8ba7cc370e435';
       headers.set('Authorization', `tgm ${initData}`);
     }
     return headers;
@@ -134,7 +134,7 @@ export const api = createApi({
         method: 'POST',
         body: buyerInfo,
       }),
-      invalidatesTags: [{ type: 'Order', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Order', id: 'LIST' }, { type: 'Basket', id: 'LIST' }],
     }),
     getOrder: builder.query<Order, string>({
       query: code => `order/${code}`,

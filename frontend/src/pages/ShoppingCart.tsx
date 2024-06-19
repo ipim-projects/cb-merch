@@ -49,6 +49,7 @@ import { deliveryAddressToString, validateEmail, validatePhone } from '../helper
 import { BuyerInfo } from '../types/orders.ts';
 import { productOptionsChips } from '../helpers/product.tsx';
 
+import styles from './ShoppingCart.module.css';
 
 const ShoppingCart: React.FunctionComponent = () => {
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
@@ -98,7 +99,6 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (divRef.current) {
-      console.log('scroll');
       divRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [deliveryPrice]);
@@ -131,21 +131,8 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (isCreateOrderSuccess && order) {
-      // setIsSnackbarShown(true);
-      showPopup({
-        title: 'Заказ сформирован',
-        message: `№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`,
-        buttons: [
-          {
-            id: 'okbtn',
-            type: 'ok',
-          },
-        ]
-      }).then((buttonId) => {
-        console.log(buttonId);
-        cartRefetch();
-        navigate(`/order/${order?.code}`);
-      })
+      setIsSnackbarShown(true);
+      cartRefetch();
     }
   }, [isCreateOrderSuccess]);
 
@@ -164,6 +151,15 @@ const ShoppingCart: React.FunctionComponent = () => {
       ...buyerInfo,
       buyerName: buyerInfo.buyerName.trim(),
     });
+    setIsModalOpen(false);
+    setIsSnackbarShown(true);
+  }
+
+  const handleOrderCreated = () => {
+    if (isSnackbarShown) {
+      setIsSnackbarShown(false);
+      navigate(`/order/${order?.code}`);
+    }
   }
 
   const handleCheckAddress = async () => {
@@ -428,7 +424,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             />
             <Input
               header='Телефон'
-              placeholder='Введите номер телефона'
+              placeholder='Введите номер телефона в формате 79123456789'
               value={buyerInfo?.buyerPhone}
               status={buyerPhoneInputStatus}
               onChange={event => {
@@ -461,18 +457,36 @@ const ShoppingCart: React.FunctionComponent = () => {
               }
             />
           </Section>
+          {!buttonsDisabled && isNil(getWarningMessages()) && isModalOpen && <>
+            {isTelegram ?
+              <MainButton
+                text={'Оформить заказ'}
+                disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+                onClick={handlePlaceOrder}
+              /> :
+              <Button
+                disabled={buttonsDisabled || isNotNil(getWarningMessages())}
+                onClick={handlePlaceOrder}
+              >
+                Оформить заказ
+              </Button>
+            }
+          </>
+          }
         </Modal>
         }
         {isSnackbarShown && order && (
           <Snackbar
+            className={styles.fixed}
             before={<Icon28Archive/>}
             description={`№ ${order.sourceCode} от ${new Date(order.createdAtUtc).toLocaleDateString('ru-RU')}`}
             children="Заказ сформирован"
-            onClose={() => {
-              setIsSnackbarShown(false);
-              cartRefetch();
-              navigate(`/order/${order?.code}`)
-            }}
+            onClose={handleOrderCreated}
+            after={(
+              <Snackbar.Button onClick={handleOrderCreated}>
+                К заказу
+              </Snackbar.Button>
+            )}
           />
         )}
         {deliveryPriceFoundOut && !isModalOpen && <>
@@ -485,22 +499,6 @@ const ShoppingCart: React.FunctionComponent = () => {
               onClick={() => setIsModalOpen(true)}
             >
               Перейти к оформлению
-            </Button>
-          }
-        </>
-        }
-        {!buttonsDisabled && isNil(getWarningMessages()) && isModalOpen && <>
-          {isTelegram ?
-            <MainButton
-              text={'Оформить заказ'}
-              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
-              onClick={handlePlaceOrder}
-            /> :
-            <Button
-              disabled={buttonsDisabled || isNotNil(getWarningMessages())}
-              onClick={handlePlaceOrder}
-            >
-              Оформить заказ
             </Button>
           }
         </>
