@@ -20,7 +20,9 @@ import {
 import { MultiselectOption } from '@telegram-apps/telegram-ui/dist/components/Form/Multiselect/types';
 import { difference, equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { MainButton, useShowPopup } from '@vkruglikov/react-telegram-web-app';
-import { ModalHeader } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
+import {
+  ModalHeader
+} from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalHeader/ModalHeader';
 import { ModalClose } from '@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalClose/ModalClose';
 import { Icon28Close } from '@telegram-apps/telegram-ui/dist/icons/28/close';
 import { Icon28Archive } from '@telegram-apps/telegram-ui/dist/icons/28/archive';
@@ -44,6 +46,8 @@ import showBoxberryMap from '../helpers/boxberry.js';
 // @ts-ignore
 import showPochtaMap from '../helpers/pochta.js';
 import { IconTrashBin } from '../icons/trash-bin.tsx';
+import { IconAddCircle } from '../icons/add-circle.tsx';
+import { IconMinusCircle } from '../icons/minus-circle.tsx';
 import { DeliveryOptions, DeliveryType, WidgetDeliveryPrice } from '../types/delivery.ts';
 import { deliveryAddressToString, validateEmail, validatePhone } from '../helpers/delivery.ts';
 import { BuyerInfo } from '../types/orders.ts';
@@ -284,52 +288,55 @@ const ShoppingCart: React.FunctionComponent = () => {
               description={productOptionsChips(item.productVariant.productOptions)}
               onClick={() => navigate(`/product/${item.product.code}`)}
               after={
-                <>
+                <List>
                   <Info type="text" style={{ marginRight: '16px' }}>
                     {item.productVariant.price * item.count} ₽
                   </Info>
-                  <Button
-                    mode="outline"
-                    size="s"
-                    disabled={buttonsDisabled}
-                    onClick={async (event) => {
-                      event.stopPropagation();
-                      await decreaseOneItem(item.productVariant.code);
-                      setDeliveryPrice(0);
-                      setDeliveryPriceFoundOut(false);
-                    }}
-                  >
-                    -
-                  </Button>
-                  <Badge type="number" large={true}>{item.count}</Badge>
-                  <Button
-                    mode="outline"
-                    size="s"
-                    disabled={buttonsDisabled}
-                    onClick={async (event) => {
-                      event.stopPropagation();
-                      await addItemToCart(item.productVariant.code);
-                      setDeliveryPrice(0);
-                      setDeliveryPriceFoundOut(false);
-                    }}
-                  >
-                    +
-                  </Button>
-                  <IconButton
-                    style={{ marginLeft: '16px' }}
-                    mode="outline"
-                    size="s"
-                    disabled={buttonsDisabled}
-                    onClick={async (event) => {
-                      event.stopPropagation();
-                      await removeItemFromCart(item.productVariant.code);
-                      setDeliveryPrice(0);
-                      setDeliveryPriceFoundOut(false);
-                    }}
-                  >
-                    <IconTrashBin/>
-                  </IconButton>
-                </>
+                  {item.product.name !== 'Фулфилмент' && <Info type="text">
+                    <IconButton
+                      mode="plain"
+                      size="s"
+                      disabled={buttonsDisabled}
+                      onClick={async (event) => {
+                        event.stopPropagation();
+                        await decreaseOneItem(item.productVariant.code);
+                        setDeliveryPrice(0);
+                        setDeliveryPriceFoundOut(false);
+                      }}
+                    >
+                      <IconMinusCircle/>
+                    </IconButton>
+                    <Badge type="number" mode="primary" large={false}>{item.count}</Badge>
+                    <IconButton
+                      mode="plain"
+                      size="s"
+                      disabled={buttonsDisabled}
+                      onClick={async (event) => {
+                        event.stopPropagation();
+                        await addItemToCart(item.productVariant.code);
+                        setDeliveryPrice(0);
+                        setDeliveryPriceFoundOut(false);
+                      }}
+                    >
+                      <IconAddCircle/>
+                    </IconButton>
+                    <IconButton
+                      style={{ marginLeft: '16px' }}
+                      mode="plain"
+                      size="s"
+                      disabled={buttonsDisabled}
+                      onClick={async (event) => {
+                        event.stopPropagation();
+                        await removeItemFromCart(item.productVariant.code);
+                        setDeliveryPrice(0);
+                        setDeliveryPriceFoundOut(false);
+                      }}
+                    >
+                      <IconTrashBin/>
+                    </IconButton>
+                  </Info>
+                  }
+                </List>
               }
             >
               {item.product.name}
