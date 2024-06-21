@@ -115,7 +115,9 @@ const ShoppingCart: React.FunctionComponent = () => {
       setDeliveryType(DeliveryOptions.filter(opt => opt.value === cart.delivery.deliveryAddress.deliveryType));
     }
     if (cart?.delivery?.deliveryAddress) {
-      setAddress(deliveryAddressToString(cart.delivery.deliveryAddress));
+      cart?.delivery?.deliveryAddress?.deliveryType === DeliveryType.BOXBERRY_PVZ
+        ? setAddress(cart.delivery.deliveryAddress.address)
+        : setAddress(deliveryAddressToString(cart.delivery.deliveryAddress));
     }
     if (cart?.delivery?.price) {
       setDeliveryPrice(cart.delivery.price);
@@ -211,20 +213,24 @@ const ShoppingCart: React.FunctionComponent = () => {
   const boxberryCallback = async (result: any) => {
     console.log('Выбрано отделение:', result);
     if (result.price) {
-      // парсим адрес через вызов delivery/pochtaru/check/address
-      const { data: checkedAddress } = await checkAddressQueryTrigger({
-        deliveryType: DeliveryType.BOXBERRY_PVZ,
-        address: result.address
-      });
-      if (!checkedAddress?.zipCode) {
+      if (!result.zip) {
         await showPopup({ title: 'Ошибка', message: 'Адрес или индекс не найден' });
         return;
       }
       setDeliveryPrice(Number(result.price));
       setDeliveryPriceFoundOut(true);
-      setAddress(deliveryAddressToString(checkedAddress));
+      setAddress(result.address);
       const pvzAddress: WidgetDeliveryPrice = {
-        address: { ...checkedAddress, pvzCode: result.id, },
+        address: {
+          country: 'Россия',
+          // region: undefined,
+          // area: undefined,
+          // city: undefined,
+          address: result.address,
+          zipCode: result.zip,
+          pvzCode: result.id,
+          deliveryType: DeliveryType.BOXBERRY_PVZ,
+        },
         price: result.price,
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);

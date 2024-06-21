@@ -18,7 +18,7 @@ export interface DeliveryAddress {
   country: string,
   region?: string,
   area?: string,
-  city: string,
+  city?: string,
   address: string,
   zipCode: string,
   pvzCode?: string,
