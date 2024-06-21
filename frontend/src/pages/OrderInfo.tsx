@@ -12,7 +12,7 @@ import { useGetCurrentUserQuery, useGetOrderQuery, useGetPaymentQuery, useReject
 import Loading from '../components/Loading.tsx';
 import { productOptionsChips } from '../helpers/product.tsx';
 import { deliveryAddressToString } from '../helpers/delivery.ts';
-import { DeliveryOptions } from '../types/delivery.ts';
+import { DeliveryOptions, DeliveryType } from '../types/delivery.ts';
 import { Order, OrderStatus, OrderStatusType } from '../types/orders.ts';
 import { User } from '../types/user.ts';
 
@@ -136,7 +136,11 @@ const OrderInfo: React.FunctionComponent = () => {
             Способ доставки: {DeliveryOptions.find(opt => opt.value === order.deliveryAddress.deliveryType)?.label}
           </Info>
           <Info type="text">
-            Адрес: {deliveryAddressToString(order.deliveryAddress)}
+            Адрес: {
+            order.deliveryAddress.deliveryType === DeliveryType.BOXBERRY_PVZ
+              ? order.deliveryAddress.address
+              : deliveryAddressToString(order.deliveryAddress)
+          }
           </Info>
           <Info type="text">
             Стоимость доставки: {order.deliveryPrice ?? 0} ₽
