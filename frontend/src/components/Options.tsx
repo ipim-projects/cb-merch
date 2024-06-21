@@ -5,6 +5,8 @@ import { isEmpty, isNil, reject } from 'ramda';
 import { ProductOption, ProductVariant } from '../types/products.ts';
 import { getVariant } from '../helpers/product.tsx';
 
+import styles from '../helpers/product.module.css';
+
 interface OptionsProps {
   options: ProductOption[];
   variants: ProductVariant[];
@@ -40,14 +42,10 @@ const Options: React.FunctionComponent<OptionsProps> = ({
   return (
     <List>
       {colorOptions.length > 0 && <Section header="Цвет" footer={getWarningMessages('color')}>
-        <div
-          style={{
-            display: 'flex',
-            gap: 8
-          }}
-        >
+        <div>
           {colorOptions.map((option, index) => (
             <Chip
+              className={styles.smallchip}
               key={index}
               mode={option.code === selectedColorOption ? 'mono' : 'elevated'}
               before={
@@ -69,14 +67,10 @@ const Options: React.FunctionComponent<OptionsProps> = ({
       </Section>
       }
       {sizeOptions.length > 0 && <Section header="Размер" footer={getWarningMessages('size')}>
-        <div
-          style={{
-            display: 'flex',
-            gap: 8
-          }}
-        >
+        <div>
           {sizeOptions.map((option, index) => (
             <Chip
+              className={styles.smallchip}
               key={index}
               mode={option.code === selectedSizeOption ? 'mono' : 'elevated'}
               onClick={() => {

@@ -16,7 +16,7 @@ export const productOptionsChips = (options: ProductOption[]) => {
     if (option.type === 'color') return <Chip
       className={styles.smallchip}
       key={index}
-      mode="outline"
+      mode="mono"
       before={
         <Avatar
           size={28}
@@ -24,24 +24,19 @@ export const productOptionsChips = (options: ProductOption[]) => {
         />
       }
     >
+      {option.name}
     </Chip>;
     if (option.type === 'size') return <Chip
       className={styles.smallchip}
       key={index}
-      mode="outline"
+      mode="mono"
     >
       {option.value}
     </Chip>
   });
   if (isEmpty(optionChips)) return null;
   return (
-    <div
-      style={{
-        // display: 'inline-grid',
-        display: 'flex',
-        gap: 8
-      }}
-    >
+    <div>
       {optionChips}
     </div>
   );
