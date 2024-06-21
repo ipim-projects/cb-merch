@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
       headers.set('Authorization', `tgm ${window.Telegram.WebApp.initData}`);
     } else {
       // для тестирования в браузере
-      const initData = 'query_id=AAHvN3MPAAAAAO83cw9g8AEc&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1718781739&hash=9b3acdb939df7ac0978965f328f447610785def4f3ea8462acf8ba7cc370e435';
+      const initData = 'query_id=AAHvN3MPAAAAAO83cw_MkLm0&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1718962851&hash=f1739ee2d69148c6eadf047e3cd66011170702f508fb5cf275ab70aeb0dce3e3';
       headers.set('Authorization', `tgm ${initData}`);
     }
     return headers;
@@ -145,7 +145,7 @@ export const api = createApi({
     rejectOrder: builder.mutation<void, OrderRejectQueryArg>({
       query: orderRejectQueryArg => ({
         url: `order/reject/${orderRejectQueryArg.orderCode}`,
-        method: 'PUT',
+        method: 'POST',
         body: { comment: orderRejectQueryArg.comment },
       }),
       invalidatesTags: [{ type: 'Order', id: 'LIST' }],
