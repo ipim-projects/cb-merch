@@ -100,12 +100,11 @@ const ShoppingCart: React.FunctionComponent = () => {
     || (cart?.items && isEmpty(cart?.items));
 
   const divRef = useRef<null | HTMLDivElement>(null);
-
-  useEffect(() => {
+  const scrollToDown = () => {
     if (divRef.current) {
       divRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [deliveryPrice]);
+  }
 
   useEffect(() => {
     if (
@@ -204,9 +203,9 @@ const ShoppingCart: React.FunctionComponent = () => {
     setDeliveryPrice(resultDeliveryPrice.price);
     setDeliveryPriceFoundOut(true);
     setAddress(deliveryAddressToString(resultDeliveryPrice.deliveryAddress));
+    scrollToDown();
     cartRefetch();
     setIsAddressChecking(false);
-    // setIsModalOpen(true);
   }
 
   const boxberryCallback = async (result: any) => {
@@ -229,8 +228,8 @@ const ShoppingCart: React.FunctionComponent = () => {
         price: result.price,
       }
       await saveWidgetAddressQueryTrigger(pvzAddress);
+      scrollToDown();
       cartRefetch();
-      // setIsModalOpen(true);
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -258,8 +257,8 @@ const ShoppingCart: React.FunctionComponent = () => {
       setDeliveryPriceFoundOut(true);
       setAddress(deliveryAddressToString(pvzAddress.address));
       await saveWidgetAddressQueryTrigger(pvzAddress);
+      scrollToDown();
       cartRefetch();
-      // setIsModalOpen(true);
     } else {
       await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
     }
@@ -403,7 +402,7 @@ const ShoppingCart: React.FunctionComponent = () => {
             Итого: {((cart?.productPrice ?? 0) + deliveryPrice).toFixed(2)} ₽
           </Info>
         </Section>
-        <div ref={divRef}></div>
+        <div id="divRef" ref={divRef}></div>
         {deliveryPriceFoundOut && <Modal
           header={<ModalHeader
             after={<ModalClose><Icon28Close
