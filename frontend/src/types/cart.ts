@@ -17,4 +17,5 @@ export interface ShoppingCartDetails {
 
 export interface ShoppingCartInfo {
   productsCount: number,
+  storeCode: string,
 }

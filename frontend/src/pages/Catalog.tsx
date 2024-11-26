@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -35,9 +35,22 @@ const Catalog: React.FunctionComponent = () => {
   const storeName = useSelector((state: RootState) => state.store.name);
   const storeCode = useSelector((state: RootState) => state.store.code);
   const dispatch = useDispatch();
-  const { data: cartInfo, isLoading: isCartInfoLoading } = useGetShoppingCartInfoQuery();
   const { data: storeList } = useListStoresQuery();
+  const { data: cartInfo, isLoading: isCartInfoLoading } = useGetShoppingCartInfoQuery();
   const { data: products, isLoading } = useListProductsQuery({ pageIndex: currentPage, name: search, storeCode });
+
+  useEffect(() => {
+    if (!isCartInfoLoading && cartInfo && cartInfo.productsCount > 0 && storeList) {
+      const storeInfo = storeList.find(item => item.code === cartInfo.storeCode);
+      if (!storeInfo) return;
+      dispatch(setSelectedStore({
+        code: storeInfo.code,
+        name: storeInfo.name,
+        deliveryTypes: storeInfo.deliveryTypes,
+        batchEnabled: storeInfo.batchEnabled,
+      }))
+    }
+  }, [cartInfo]);
 
   if (isLoading) return (
     <Loading/>
@@ -73,16 +86,6 @@ const Catalog: React.FunctionComponent = () => {
                 {storeInfo.name}
               </Cell>
             ))}
-            {/*<Cell Component="label"
-                  before={<Selectable name="group"
-                                      value="LogoBaze"
-                                      onChange={() => dispatch(setSelectedStore({
-                                        code: "logo",
-                                        name: "LogoBaze",
-                                      }))}/>
-                  }>
-              LogoBaze
-            </Cell>*/}
           </Accordion.Content>
         </Accordion> :
         <Section>

@@ -59,7 +59,8 @@ const ProductCard: React.FunctionComponent = () => {
               alt="Product image"
               src={image}
               style={{
-                width: 500
+                width: '100%',
+                maxWidth: 1280,
               }}
             />}
           </Placeholder>
