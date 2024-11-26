@@ -1,17 +1,43 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cell, Headline, Image, Info, Input, Pagination, Section, Tappable } from '@telegram-apps/telegram-ui';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  Accordion,
+  Cell,
+  Headline,
+  Image,
+  Info,
+  Input,
+  Pagination,
+  Section, Selectable,
+  Tappable, Tooltip
+} from '@telegram-apps/telegram-ui';
 import { Icon24Close } from '@telegram-apps/telegram-ui/dist/icons/24/close';
 
-import { PAGE_SIZE_DEFAULT, useListProductsQuery } from '../redux/api.ts';
+import {
+  PAGE_SIZE_DEFAULT,
+  useGetShoppingCartInfoQuery,
+  useListProductsQuery,
+  useListStoresQuery
+} from '../redux/api.ts';
 import Loading from '../components/Loading.tsx';
+import { RootState } from '../redux/store.ts';
+import { setSelectedStore } from '../redux/storeSlice.ts';
 
 const Catalog: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const ref = useRef(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [expanded, setExpanded] = useState(false);
+  const [tooltipShown, setTooltipShown] = useState(false);
 
-  const { data: products, isLoading } = useListProductsQuery({ pageIndex: currentPage, name: search });
+  const storeName = useSelector((state: RootState) => state.store.name);
+  const storeCode = useSelector((state: RootState) => state.store.code);
+  const dispatch = useDispatch();
+  const { data: cartInfo, isLoading: isCartInfoLoading } = useGetShoppingCartInfoQuery();
+  const { data: storeList } = useListStoresQuery();
+  const { data: products, isLoading } = useListProductsQuery({ pageIndex: currentPage, name: search, storeCode });
 
   if (isLoading) return (
     <Loading/>
@@ -20,6 +46,56 @@ const Catalog: React.FunctionComponent = () => {
   return (
     <>
       <Headline style={{ padding: '0 24px' }}>Каталог товаров</Headline>
+      {!isCartInfoLoading && cartInfo?.productsCount === 0 ?
+        <Accordion
+          onChange={() => setExpanded(!expanded)}
+          expanded={expanded}
+        >
+          <Accordion.Summary>
+            <Cell subhead="Выбранный магазин">
+              {storeName}
+            </Cell>
+          </Accordion.Summary>
+          <Accordion.Content>
+            {storeList?.map((storeInfo, index) => (
+              <Cell key={index}
+                    Component="label"
+                    before={<Selectable defaultChecked={index === 0}
+                                        name="group"
+                                        value={storeInfo.code}
+                                        onChange={() => dispatch(setSelectedStore({
+                                          code: storeInfo.code,
+                                          name: storeInfo.name,
+                                          deliveryTypes: storeInfo.deliveryTypes,
+                                          batchEnabled: storeInfo.batchEnabled,
+                                        }))}/>
+                    }>
+                {storeInfo.name}
+              </Cell>
+            ))}
+            {/*<Cell Component="label"
+                  before={<Selectable name="group"
+                                      value="LogoBaze"
+                                      onChange={() => dispatch(setSelectedStore({
+                                        code: "logo",
+                                        name: "LogoBaze",
+                                      }))}/>
+                  }>
+              LogoBaze
+            </Cell>*/}
+          </Accordion.Content>
+        </Accordion> :
+        <Section>
+          <Cell subhead="Выбранный магазин" disabled ref={ref} onClick={() => setTooltipShown(!tooltipShown)}>
+            {storeName}
+          </Cell>
+          {tooltipShown && (
+            <Tooltip targetRef={ref}>
+              Для смены магазина необходимо очистить корзину
+            </Tooltip>
+          )}
+        </Section>
+      }
       <Section style={{ paddingBottom: '84px' }}>
         <Input
           header='Поиск'

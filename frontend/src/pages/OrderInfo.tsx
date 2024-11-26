@@ -15,6 +15,8 @@ import { deliveryAddressToString } from '../helpers/delivery.ts';
 import { DeliveryOptions, DeliveryType } from '../types/delivery.ts';
 import { Order, OrderStatus, OrderStatusType } from '../types/orders.ts';
 import { User } from '../types/user.ts';
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store.ts";
 
 const canOrderBePaid = (order: Order | undefined, user: User | undefined) =>
   !!order && ['new', 'partialPaid'].includes(order.status)
@@ -36,6 +38,7 @@ const OrderInfo: React.FunctionComponent = () => {
   const { orderCode } = useParams();
   const [comment, setComment] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const storeCode = useSelector((state: RootState) => state.store.code);
   // обновляем каждые 5 секунд, т.к. после оплаты нет колбэка, а пользователь остаётся на странице заказа
   const { data: order, isLoading, refetch } = useGetOrderQuery(orderCode!, { pollingInterval: 5000 });
   const { data: user } = useGetCurrentUserQuery();
@@ -149,7 +152,8 @@ const OrderInfo: React.FunctionComponent = () => {
             Итого: {order.totalPrice ?? 0} ₽
           </Info>
         </Section>
-        {canOrderBePaid(order, user) && payment?.paymentUrl && !isModalOpen && <>
+        {/*TODO: пока оплата для Logobaze недоступна*/}
+        {canOrderBePaid(order, user) && payment?.paymentUrl && !isModalOpen && storeCode !== 'Logobaze' && <>
           {isTelegram ?
             <MainButton
               text={'Перейти к оплате'}

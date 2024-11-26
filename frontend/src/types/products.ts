@@ -1,5 +1,6 @@
 export interface Product {
   code: string,
+  storeCode: string,
   name: string,
   description: string,
   // TODO: добавить категорию

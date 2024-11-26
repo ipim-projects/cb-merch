@@ -1,6 +1,11 @@
-const showPochtaMap = (pochtaCallback, ordersum, weight) => {
+const ids = {
+  Logobaze: 52759,
+  Mamcupy: 48776,
+}
+
+const showPochtaMap = (pochtaCallback, ordersum, weight, storeCode) => {
   ecomStartWidget({
-    id: 48776,
+    id: ids[storeCode],
     callbackFunction: pochtaCallback,
     containerId: 'ecom-widget',
     // сумма в копейках

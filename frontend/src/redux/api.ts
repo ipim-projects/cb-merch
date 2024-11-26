@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-import { ListRequestQueryArg, ListResponse } from '../types/common.ts';
+import { ListRequestQueryArg, ListResponse, StoreInfo } from '../types/common.ts';
 import { Product, ProductDetails } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
 import { BuyerInfo, Order, OrderBaseInfo, OrderRejectQueryArg, Payment } from '../types/orders.ts';
@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
       headers.set('Authorization', `tgm ${window.Telegram.WebApp.initData}`);
     } else {
       // для тестирования в браузере
-      const initData = 'query_id=AAHvN3MPAAAAAO83cw_MkLm0&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1718962851&hash=f1739ee2d69148c6eadf047e3cd66011170702f508fb5cf275ab70aeb0dce3e3';
+      const initData = 'query_id=AAHvN3MPAAAAAO83cw9Nf3a2&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FZN-fIE-YFmtpT9QHHolMfEPQsgK1Nc-UJWBUuzb72A0.svg%22%7D&auth_date=1732608563&signature=61FA2CcOu4pICzjkkgc9Mu0a78XcrYeUAFw1xeYTnzReqF3p_pLVdaj-PhBmoL0HYibLDJPbAHFwJOBwdlWKAA&hash=6726701699f09f14d6c8ce1bbe36ee588c751e4d5f467e8d61799705cf3ca6b0';
       headers.set('Authorization', `tgm ${initData}`);
     }
     return headers;
@@ -38,12 +38,13 @@ export const api = createApi({
   tagTypes: ['Basket', 'Order'],
   endpoints: (builder) => ({
     // Products
-    listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg & Partial<Pick<Product, 'name'>>>({
+    listProducts: builder.query<ListResponse<Product>, ListRequestQueryArg & Partial<Pick<Product, 'name' | 'storeCode'>>>({
       query: ({
                 pageIndex = 1,
                 pageSize = PAGE_SIZE_DEFAULT,
-                name = ''
-              }) => `product/list?pageIndex=${pageIndex}&pageSize=${pageSize}&name=${name}`,
+                name = '',
+                storeCode = '',
+              }) => `product/list?pageIndex=${pageIndex}&pageSize=${pageSize}&name=${name}&storeCode=${storeCode}`,
     }),
     getProductImage: builder.query<string, string>({
       query: fileCode => ({
@@ -150,6 +151,10 @@ export const api = createApi({
       }),
       invalidatesTags: [{ type: 'Order', id: 'LIST' }],
     }),
+    // Stores
+    listStores: builder.query<StoreInfo[], void>({
+      query: () => 'store/list',
+    }),
     // User
     getCurrentUser: builder.query<User, void>({
       query: () => 'user/current',
@@ -177,5 +182,6 @@ export const {
   useGetOrderQuery,
   useGetPaymentQuery,
   useRejectOrderMutation,
+  useListStoresQuery,
   useGetCurrentUserQuery,
 } = api;

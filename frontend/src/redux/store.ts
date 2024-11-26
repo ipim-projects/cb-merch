@@ -3,6 +3,7 @@ import type { Middleware } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query';
 
 import { api } from './api';
+import { storeSlice } from "./storeSlice.ts";
 
 export const rtkQueryErrorLogger: Middleware =
   () => (next) => (action) => {
@@ -28,12 +29,15 @@ export const rtkQueryErrorLogger: Middleware =
     return next(action);
   };
 
-export const store = configureStore({
+export const reduxStore = configureStore({
   reducer: {
     [api.reducerPath]: api.reducer,
+    store: storeSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(rtkQueryErrorLogger).concat(api.middleware),
 });
 
-setupListeners(store.dispatch);
+export type RootState = ReturnType<typeof reduxStore.getState>;
+
+setupListeners(reduxStore.dispatch);

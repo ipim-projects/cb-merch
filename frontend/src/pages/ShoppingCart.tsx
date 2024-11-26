@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  Accordion,
   Badge,
+  Blockquote,
   Button,
   Cell,
+  Checkbox,
   Headline,
   IconButton,
   Info,
@@ -54,12 +57,16 @@ import { BuyerInfo } from '../types/orders.ts';
 import { productOptionsChips } from '../helpers/product.tsx';
 
 import styles from './ShoppingCart.module.css';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store.ts';
 
 const ShoppingCart: React.FunctionComponent = () => {
+  const storeDeliveryTypes = useSelector((state: RootState) => state.store.deliveryTypes);
+  const storeCode = useSelector((state: RootState) => state.store.code);
+  const storeDeliveryOptions: MultiselectOption[] = DeliveryOptions.filter(opt => storeDeliveryTypes.includes(opt.value.toString()));
+
   const [isSnackbarShown, setIsSnackbarShown] = useState(false);
-  const [deliveryType, setDeliveryType] = useState<MultiselectOption[]>(
-    DeliveryOptions.filter(opt => opt.value === DeliveryType.BOXBERRY_COURIER)
-  );
+  const [deliveryType, setDeliveryType] = useState<MultiselectOption[]>([]);
   const [address, setAddress] = useState('');
   const [deliveryPrice, setDeliveryPrice] = useState(0);
   const [deliveryPriceFoundOut, setDeliveryPriceFoundOut] = useState(false);
@@ -69,6 +76,8 @@ const ShoppingCart: React.FunctionComponent = () => {
   const [buyerPhoneInputStatus, setBuyerPhoneInputStatus] = useState<undefined | 'error'>(undefined);
   const [buyerEmailInputStatus, setBuyerEmailInputStatus] = useState<undefined | 'error'>(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [agreement, setAgreement] = useState(false);
+  const [isAgreementExpanded, setIsAgreementExpanded] = useState(false);
 
   const { data: cart, isLoading, refetch: cartRefetch } = useGetShoppingCartQuery();
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
@@ -127,10 +136,10 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (deliveryType.length > 0 && DeliveryType.BOXBERRY_PVZ === deliveryType[0].value) {
-      showBoxberryMap(boxberryCallback, cart?.productPrice, cart?.totalWeight);
+      showBoxberryMap(boxberryCallback, cart?.productPrice, cart?.totalWeight, storeCode);
     }
     if (deliveryType.length > 0 && DeliveryType.POST_PVZ === deliveryType[0].value) {
-      showPochtaMap(pochtaCallback, cart?.productPrice, cart?.totalWeight);
+      showPochtaMap(storeCode === 'Logobaze' ? logobazePochtaCallback : pochtaCallback, cart?.productPrice, cart?.totalWeight, storeCode);
     }
   }, [deliveryType]);
 
@@ -270,6 +279,35 @@ const ShoppingCart: React.FunctionComponent = () => {
     }
   }
 
+  const logobazePochtaCallback = async (result: any) => {
+    console.log('Logobaze Выбрано отделение:', result);
+    if (result.cashOfDelivery) {
+      // сумма в копейках
+      const deliveryPrice = result.cashOfDelivery / 100;
+      const pvzAddress: WidgetDeliveryPrice = {
+        address: {
+          country: 'Россия',
+          region: result.regionTo,
+          area: result.areaTo,
+          city: result.cityTo,
+          address: result.addressTo,
+          zipCode: result.indexTo,
+          pvzCode: result.id.toString(),
+          deliveryType: DeliveryType.POST_PVZ,
+        },
+        price: deliveryPrice,
+      };
+      setDeliveryPrice(deliveryPrice);
+      setDeliveryPriceFoundOut(true);
+      setAddress(deliveryAddressToString(pvzAddress.address));
+      await saveWidgetAddressQueryTrigger(pvzAddress);
+      scrollToDown();
+      cartRefetch();
+    } else {
+      await showPopup({ title: 'Ошибка', message: 'Не удалось получить стоимость доставки' });
+    }
+  }
+
   const getWarningMessages = () => {
     if (isEmpty(buyerInfo.buyerName.trim())) return 'Введите имя и фамилию';
     if (!validatePhone(buyerInfo.buyerPhone.trim())) return 'Введите номер телефона в формате +79123456789';
@@ -352,7 +390,7 @@ const ShoppingCart: React.FunctionComponent = () => {
         <Section header="Доставка и получение">
           <Multiselect
             header="Способ доставки"
-            options={DeliveryOptions}
+            options={storeDeliveryOptions}
             value={deliveryType}
             closeDropdownAfterSelect={true}
             onChange={handleDeliveryTypeChange}
@@ -469,8 +507,58 @@ const ShoppingCart: React.FunctionComponent = () => {
                 }))
               }
             />
+            <Cell
+              Component="label"
+              before={<Checkbox name="agreementCheckbox" value="0" onChange={() => setAgreement(!agreement)}/>}
+              description="Согласен на обработку и передачу персональных данных"
+              multiline
+            />
+            <Accordion
+              onChange={() => setIsAgreementExpanded(!isAgreementExpanded)}
+              expanded={isAgreementExpanded}
+            >
+              <Accordion.Summary>
+                Текст согласия
+              </Accordion.Summary>
+              <Accordion.Content>
+                <div
+                  style={{
+                    padding: '10px 20px 20px'
+                  }}
+                >
+                  <Blockquote>
+                    <p>Предоставляя свои персональные данные, Покупатель даёт согласие на обработку, хранение и
+                      использование своих персональных данных на основании ФЗ № 152-ФЗ «О персональных данных» от
+                      27.07.2006 г. в следующих целях:<br/>
+                      • Регистрации Пользователя на в Витрине<br/>
+                      • Осуществления клиентской поддержки Продавцом<br/>
+                      • Выполнения Продавцом обязательств перед Покупателем<br/>
+                      Под персональными данными подразумевается любая информация личного характера, позволяющая
+                      установить личность Покупателя такая как:<br/>
+                      • Фамилия, Имя, Отчество<br/>
+                      • Контактный телефон<br/>
+                      • Адрес электронной почты<br/>
+                      • Почтовый адрес (в случае доставки курьерской службой)<br/>
+                      • Имя пользователя Telegram (в случае выставления счета на оплату Продавцом через чат мессенджера
+                      Telegram)</p>
+                    <p>Персональные данные Покупателей не хранятся в Витрине, а передаются в рамках заказа Продавцу. На
+                      стороне Продавца персональные данные хранятся исключительно на электронных носителях и
+                      обрабатываются с использованием автоматизированных систем, за исключением случаев, когда
+                      неавтоматизированная обработка персональных данных необходима в связи с исполнением требований
+                      законодательства.<br/>
+                      Витрина обязуется не передавать полученные персональные данные любым третьим лицам кроме
+                      Продавца и логистических компаний, обеспечивающих доставку, которым передается информация заказа
+                      Покупателя, за исключением уполномоченных органов государственной власти РФ только по основаниям
+                      и в порядке, установленным законодательством РФ.<br/>
+                      Витрина оставляет за собой право вносить изменения в одностороннем порядке в настоящие правила,
+                      при условии, что изменения не противоречат действующему законодательству РФ. Изменения условий
+                      настоящих правил вступают в силу после их публикации в интерфейсе Витрины.</p>
+                  </Blockquote>
+                </div>
+              </Accordion.Content>
+            </Accordion>
           </Section>
-          {!buttonsDisabled && isNil(getWarningMessages()) && isModalOpen && <>
+          {!buttonsDisabled && isNil(getWarningMessages()) && isModalOpen && agreement && <>
             {isTelegram ?
               <MainButton
                 text={'Оформить заказ'}
