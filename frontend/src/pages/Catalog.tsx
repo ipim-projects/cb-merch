@@ -73,7 +73,7 @@ const Catalog: React.FunctionComponent = () => {
             {storeList?.map((storeInfo, index) => (
               <Cell key={index}
                     Component="label"
-                    before={<Selectable defaultChecked={index === 0}
+                    before={<Selectable defaultChecked={storeInfo.code === storeCode}
                                         name="group"
                                         value={storeInfo.code}
                                         onChange={() => dispatch(setSelectedStore({
