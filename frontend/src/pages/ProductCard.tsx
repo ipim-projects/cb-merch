@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, Button, Info, List, Placeholder, Section, Snackbar } from '@telegram-apps/telegram-ui';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
 import { isEmpty } from 'ramda';
+import parse from 'html-react-parser';
 
 import { useGetProductQuery, useGetProductImageQuery, useAddItemToCartMutation } from '../redux/api.ts';
 import Options from '../components/Options.tsx';
@@ -53,7 +54,7 @@ const ProductCard: React.FunctionComponent = () => {
           <CartIconButton/>
           <Placeholder
             header={product.name}
-            description={product.description}
+            description={parse(product.fullDescription)}
           >
             {image && <img
               alt="Product image"
