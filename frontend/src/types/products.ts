@@ -1,16 +1,21 @@
+export interface ProductFile {
+  code: string,
+  name: string,
+  mimeType: string,
+  isMain: boolean,
+}
+
+export interface ProductImage extends ProductFile {
+  content: string,
+}
+
 export interface Product {
   code: string,
   storeCode: string,
   name: string,
   description: string,
   // TODO: добавить категорию
-  smallFile: {
-    content: string,
-    code: string,
-    name: string,
-    mimeType: string,
-    isMain: boolean,
-  },
+  smallFile: ProductImage,
   price: number,
   units: string,
 }
@@ -20,14 +25,7 @@ export interface ProductDetails {
   name: string,
   description: string,
   fullDescription: string,
-  files: [
-    {
-      code: string,
-      name: string,
-      mimeType: string,
-      isMain: boolean,
-    }
-  ],
+  files: ProductFile[],
   options: ProductOption[],
   variants: ProductVariant[],
   price: number,

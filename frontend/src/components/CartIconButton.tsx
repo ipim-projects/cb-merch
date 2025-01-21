@@ -13,7 +13,7 @@ const CartIconButton: React.FunctionComponent = () => {
   const { data: cartInfo, isLoading } = useGetShoppingCartInfoQuery();
 
   return (
-    <CardChip readOnly>
+    <CardChip readOnly style={{ zIndex: 999 }}>
       <IconButtonRef disabled={isLoading} mode="plain" size="s" onClick={() => navigate('/cart')}>
         {cartInfo && <AvatarBadge style={{right: -6}} type="number">{cartInfo?.productsCount ?? 0}</AvatarBadge>}
         <IconCart/>

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { ListRequestQueryArg, ListResponse, StoreInfo } from '../types/common.ts';
-import { Product, ProductDetails } from '../types/products.ts';
+import { Product, ProductDetails, ProductImage } from '../types/products.ts';
 import { ShoppingCartDetails, ShoppingCartInfo } from '../types/cart.ts';
 import { BuyerInfo, Order, OrderBaseInfo, OrderRejectQueryArg, Payment } from '../types/orders.ts';
 import {
@@ -24,7 +24,7 @@ const baseQuery = fetchBaseQuery({
       headers.set('Authorization', `tgm ${window.Telegram.WebApp.initData}`);
     } else {
       // для тестирования в браузере
-      const initData = 'query_id=AAHvN3MPAAAAAO83cw9Nf3a2&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FZN-fIE-YFmtpT9QHHolMfEPQsgK1Nc-UJWBUuzb72A0.svg%22%7D&auth_date=1732608563&signature=61FA2CcOu4pICzjkkgc9Mu0a78XcrYeUAFw1xeYTnzReqF3p_pLVdaj-PhBmoL0HYibLDJPbAHFwJOBwdlWKAA&hash=6726701699f09f14d6c8ce1bbe36ee588c751e4d5f467e8d61799705cf3ca6b0';
+      const initData = 'query_id=AAHvN3MPAAAAAO83cw9hsNXi&user=%7B%22id%22%3A259209199%2C%22first_name%22%3A%22Ilya%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22i_pim%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FZN-fIE-YFmtpT9QHHolMfEPQsgK1Nc-UJWBUuzb72A0.svg%22%7D&auth_date=1737386934&signature=EB-Mc5Pb0Xd4OIxjfD5yrcCBVSgoeyvYXRkeJvg466rUAxR2KYgUB8rkoRFxcozy4JXT6Ua_FHpJDQBwiAjGDw&hash=0b87bd0ec3526109c2683946e515b10f8aaceae9ba445b79a83379167ae51b91';
       headers.set('Authorization', `tgm ${initData}`);
     }
     return headers;
@@ -57,6 +57,9 @@ export const api = createApi({
           reader.readAsDataURL(await response.blob());
         }),
       }),
+    }),
+    getProductImages: builder.query<ProductImage[], string>({
+      query: code => `product/images/${code}`,
     }),
     getProduct: builder.query<ProductDetails, string>({
       query: code => `product/${code}`,
@@ -166,6 +169,7 @@ export const {
   useListProductsQuery,
   // useLazyGetProductImageQuery,
   useGetProductImageQuery,
+  useGetProductImagesQuery,
   useGetProductQuery,
   useGetShoppingCartInfoQuery,
   useGetShoppingCartQuery,

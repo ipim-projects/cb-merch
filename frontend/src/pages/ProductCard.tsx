@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, Button, Info, List, Placeholder, Section, Snackbar } from '@telegram-apps/telegram-ui';
 import { BackButton, MainButton } from '@vkruglikov/react-telegram-web-app';
+import { ButtonBack, ButtonNext, CarouselProvider, DotGroup, Image, Slide, Slider } from 'pure-react-carousel';
+import 'pure-react-carousel/dist/react-carousel.es.css';
 import { isEmpty } from 'ramda';
 import parse from 'html-react-parser';
 
-import { useGetProductQuery, useGetProductImageQuery, useAddItemToCartMutation } from '../redux/api.ts';
+import { useAddItemToCartMutation, useGetProductImagesQuery, useGetProductQuery } from '../redux/api.ts';
 import Options from '../components/Options.tsx';
-import CartIconButton from '../components/CartIconButton.tsx';
 import Loading from '../components/Loading.tsx';
 import { BatchStatus, BatchStatusType, ProductVariant } from '../types/products.ts';
+import CartIconButton from '../components/CartIconButton.tsx';
+import styles from './ProductCard.module.css';
 
 const ProductCard: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -19,10 +22,7 @@ const ProductCard: React.FunctionComponent = () => {
   const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
 
   const { data: product, isLoading, isSuccess } = useGetProductQuery(productCode!);
-  const { data: image } = useGetProductImageQuery(
-    product?.files.find(file => file.isMain)?.code!,
-    { skip: !product || !product.files || isEmpty(product.files) }
-  );
+  const { data: images } = useGetProductImagesQuery(productCode!);
   const [addItemToCart, { isLoading: isAddingToCart }] = useAddItemToCartMutation();
 
   const isTelegram = !!window.Telegram?.WebApp?.initData;
@@ -49,22 +49,31 @@ const ProductCard: React.FunctionComponent = () => {
   return (
     <>
       {isTelegram && <BackButton onClick={() => navigate(-1)}/>}
+      <CartIconButton/>
       <List>
         <Section>
-          <CartIconButton/>
+          {images && <CarouselProvider
+            naturalSlideWidth={1280}
+            naturalSlideHeight={720}
+            totalSlides={images.length}
+          >
+            <div className={styles.container}>
+              <Slider>
+                {images?.map((image, index) => (
+                  <Slide index={index}>
+                    <Image src={'data:image/jpeg;base64,' + image.content} hasMasterSpinner/>
+                  </Slide>
+                ))}
+              </Slider>
+              <ButtonBack className={styles.buttonBack}>{'<'}</ButtonBack>
+              <ButtonNext className={styles.buttonNext}>{'>'}</ButtonNext>
+            </div>
+            <DotGroup className={styles.dotGroup}/>
+          </CarouselProvider>}
           <Placeholder
             header={product.name}
             description={parse(product.fullDescription)}
-          >
-            {image && <img
-              alt="Product image"
-              src={image}
-              style={{
-                width: '100%',
-                maxWidth: 1280,
-              }}
-            />}
-          </Placeholder>
+          />
         </Section>
         {selectedVariant?.currentBatch && <Section>
           <Accordion onChange={() => setIsAccordionExpanded(!isAccordionExpanded)} expanded={isAccordionExpanded}>
