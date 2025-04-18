@@ -165,6 +165,7 @@ const ShoppingCart: React.FunctionComponent = () => {
     await createOrder({
       ...buyerInfo,
       buyerName: buyerInfo.buyerName.trim(),
+      buyerPhone: '7' + buyerInfo.buyerPhone,
     });
     setIsModalOpen(false);
     setIsSnackbarShown(true);
@@ -311,7 +312,7 @@ const ShoppingCart: React.FunctionComponent = () => {
 
   const getWarningMessages = () => {
     if (isEmpty(buyerInfo.buyerName.trim())) return 'Введите имя и фамилию';
-    if (!validatePhone(buyerInfo.buyerPhone.trim())) return 'Введите номер телефона в формате +79123456789';
+    if (!validatePhone(buyerInfo.buyerPhone.trim())) return 'Введите номер телефона';
     if (!validateEmail(buyerInfo.buyerEmail.trim())) return 'Введите корректный e-mail';
     return null;
   }
@@ -476,9 +477,10 @@ const ShoppingCart: React.FunctionComponent = () => {
             />
             <Input
               header='Телефон'
-              placeholder='Введите номер телефона в формате 79123456789'
+              placeholder='Введите номер телефона в формате 9991112233'
               value={buyerInfo?.buyerPhone}
               status={buyerPhoneInputStatus}
+              before={<Badge type="number" mode="gray" large={true}>+7</Badge>}
               onChange={event => {
                 setBuyerInfo(prevState => ({
                   ...prevState, buyerPhone: event.target.value.trim()
